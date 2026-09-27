@@ -87,11 +87,22 @@ def _criterion(criterion: dict, repo) -> dict:
             record = repo._one("clinical_records", "select * from clinical_records where id = ?", (answer["evidence_record_id"],))
             if record:
                 author = repo.get_provider(record["author_provider_id"]) if record.get("author_provider_id") else None
+                doc = repo.get_document(record["source_document_id"]) if record.get("source_document_id") else None
                 source = {
                     "author": author["full_name"] if author else None,
                     "date": record.get("start_date"),
                     "document_id": record.get("source_document_id"),
+                    "file_name": doc["file_name"] if doc else None,
                 }
+        if source is None and answer.get("source_document_id"):
+            doc = repo.get_document(answer["source_document_id"])
+            who = repo.get_provider(answer["answered_by"]) if answer.get("answered_by") else None
+            source = {
+                "author": who["full_name"] if who else None,
+                "date": (answer.get("answered_at") or "")[:10] or None,
+                "document_id": answer.get("source_document_id"),
+                "file_name": doc["file_name"] if doc else None,
+            }
         answers.append(
             {
                 "link_id": answer["link_id"],
@@ -134,14 +145,18 @@ def _attachments(criteria, repo) -> list[dict]:
     rows = []
     for criterion in criteria:
         for answer in repo.answers_for(criterion["id"]):
+            doc_id = None
             record_id = answer.get("evidence_record_id")
-            if not record_id:
+            if record_id:
+                record = repo._one("clinical_records", "select * from clinical_records where id = ?", (record_id,))
+                if record:
+                    doc_id = record.get("source_document_id")
+            if not doc_id:
+                doc_id = answer.get("source_document_id")
+            if not doc_id or doc_id in seen:
                 continue
-            record = repo._one("clinical_records", "select * from clinical_records where id = ?", (record_id,))
-            if not record or not record.get("source_document_id") or record["source_document_id"] in seen:
-                continue
-            seen.add(record["source_document_id"])
-            document = repo.get_document(record["source_document_id"])
+            seen.add(doc_id)
+            document = repo.get_document(doc_id)
             if document:
-                rows.append({"document_id": document["id"], "file_name": document["file_name"]})
+                rows.append({"document_id": doc_id, "file_name": document.get("file_name")})
     return rows

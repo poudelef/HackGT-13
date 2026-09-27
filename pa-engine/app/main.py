@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import boundary, fhir, health, pa, policies, reports, review
+from app.api import boundary, fhir, health, pa, policies, reports, review, uploads
 from app.config import settings
 from app.errors import ApiError
 
@@ -25,6 +25,7 @@ app.include_router(reports.router)
 app.include_router(pa.router)
 app.include_router(fhir.router)
 app.include_router(boundary.router)
+app.include_router(uploads.router)
 
 
 @app.exception_handler(ApiError)

@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import re
-
 from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import FileResponse, PlainTextResponse
 
+from app.ingest.catalog_resolve import service_codes_for
 from app.pipeline import pipeline_runner
 from app.repository import get_repo, payer_label
 from app.review.audit_export import render
@@ -133,6 +132,14 @@ def apply_coverage(policy_id: str, body: dict):
 
     categories = body.get("categories") or []
     return apply_categories(policy_id, categories, reviewer=body.get("reviewer") or "engine")
+
+
+@router.post("/{policy_id}/apply-service-codes")
+def apply_service_codes(policy_id: str):
+    """Attach example CPT/HCPCS/CDT codes from the UHC OH-S3 2026 service-code reference."""
+    from app.ingest.service_code_reference import apply_service_code_reference
+
+    return apply_service_code_reference(policy_id)
 
 
 @router.post("/{policy_id}/reprocess")
@@ -291,27 +298,8 @@ def _services() -> list[dict]:
 
 
 def _service_codes_for(label: str | None, codes: list) -> list[str]:
-    """Prefer CPT/HCPCS-looking codes; pull from label when the row only has ICD or nothing."""
-    out: list[str] = []
-    for raw in codes or []:
-        c = str(raw).strip()
-        if not c:
-            continue
-        if re.fullmatch(r"\d{4,5}[A-Za-z]?", c) or re.fullmatch(r"[A-Za-z]\d{4}", c):
-            if c not in out:
-                out.append(c)
-    text = label or ""
-    for match in re.finditer(r"\((\d{4,5}[A-Za-z]?)\)", text):
-        if match.group(1) not in out:
-            out.append(match.group(1))
-    if not out:
-        bare = re.search(r"\b(\d{5})\b", text)
-        if bare and bare.group(1) not in out:
-            out.append(bare.group(1))
-    # Keep original non-empty codes as last resort so the UI still has something.
-    if not out:
-        out = [str(c).strip() for c in (codes or []) if str(c).strip()]
-    return out
+    """Prefer CPT/HCPCS/CDT-looking codes; pull from label when the row only has ICD or nothing."""
+    return service_codes_for(label, codes)
 
 
 def _drugs() -> list[dict]:

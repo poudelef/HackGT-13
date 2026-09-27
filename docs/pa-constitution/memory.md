@@ -51,3 +51,47 @@ Documents tested: none (contract unit tests only). eval not run.
 Before (scorecard): no teammate ingest/export edge; insurer UI lacked PA-required banner. eval not run.
 After (scorecard): test_boundary_contract 3 passed; edge suite with markers/order still green. eval not run.
 Decision: Wrap existing engine. Export on demand (no webhook yet). Lock teammate real schema before merge; swap only boundary/*.py.
+
+## 2026-09-27 03:35, Auto
+Change: Applied `UHC_OH-S3_2026_service_codes.pdf` example CPT/HCPCS/CDT codes onto live UHC Dual Complete OH-S3 coverage rows. Added fixture JSON, `service_code_reference.apply_service_code_reference`, `POST /policies/{id}/apply-service-codes`, and unit tests.
+Why: EOC benefit chart has service names without billing codes; doctor Order left Service code blank for UHC. User supplied a grounded reference PDF for the same plan.
+Documents tested: UHC Dual Complete OH-S3 EOC policy 84687cb4 (benefit_summary); reference PDF `UHC_OH-S3_2026_service_codes.pdf` (sha256 187e6ffd…). Tier: label-match apply onto accepted coverage rows. eval not run.
+Before (scorecard): live UHC coverage with service_codes ≈ 1/90 (non-CPT placeholder). Catalog UHC with codes ≈ 1. eval not run.
+After (scorecard): apply result matched 107 / updated 102 coverage rows; reference 90 categories (86 with codes); `tests/test_service_code_reference.py` 2 passed. eval not run.
+Decision: Keep as optional reconcile from the uploaded reference (not invented web lookup). Broad categories remain single representative examples per the PDF notes. Human-locked rows stay untouched (H1).
+
+## 2026-09-27 00:30, Auto
+Change: Persist clinician enter source_document_id (DB column + clinical_record evidence_record_id); present/packet expose file_name; EnterForm source picker with upload when chart has no docs.
+Why: Source field appeared blank (empty select / never stored), so ambulance medical-necessity answers could not cite a document.
+Documents tested: none. eval not run.
+Before / After: eval not run.
+Decision: Source required via existing doc or inline PDF upload; answer locks with evidence_record_id + source_document_id.
+
+## 2026-09-27 00:35, Auto
+Change: Enter answer source_kind options: chart_document, clinician_note, not_in_chart. No-PDF paths create a labeled chart note as the H4 source.
+Why: Source was blank when the patient had no documents; clinicians need a path for note-only or not-documented answers.
+Documents tested: none. eval not run.
+Before / After: eval not run.
+Decision: Keep attestation required; auto-create synthetic note docs for clinician_note / not_in_chart so packet still has a source.
+
+## 2026-09-27 01:15, Auto
+Change: Doctor Upload page (`/doctor/upload`) with isolated `extractReportToJson`; `uploaded_reports` + `pa_requests.source_upload_id`; Order Desk prefill via `?upload_id=`; Patient status page `/patient/[id]` polling same PA history/export statuses. Kept `POST /ingest/patient-extraction` as fallback.
+Why: Teammate extraction branch not merging; need in-house report->JSON into existing Order Desk and patient-facing status without duplicating PA flow.
+Documents tested: none. eval not run.
+Before / After: eval not run.
+Decision: Keep boundary ingest endpoint as optional fallback; Doctor Upload is the primary path into Order Desk.
+
+## 2026-09-27 01:45, Auto
+Change: Report extraction cleanup + catalog resolution for the Doctor Upload -> Order Desk prefill. `report_extract.py`: strip rotated-watermark residue (lone-letter lines, repeated trailing capitals, letters wedged in words) only when the document proves a stamp is present; service_category from request labels (Ordered/Requested), then a recommendation clause, then performed-exam labels (Exam/Procedure/Study), no bare-modality fallback; 5-digit codes accepted only when standalone, off ID/accession/ZIP lines, labelled CPT/HCPCS codes first; LLM service_category only overrides the grounded one when its significant words are in the report (G3). New `app/ingest/catalog_resolve.py` with `resolveOrderToCatalog(order_text, service_code)`: live coverage rows plus rule labels that carry a billing code, across every plan; exact code match first, then label match through the existing `service_matcher._coverage_by_label` / `pa_markers.labels_match` / `significant_words`; returns matched/ambiguous/none with the canonical catalog label, preferred code, and plan identity only when all matches share one plan. `api/uploads.py` returns insurer/plan_name/plan_year/order_text/service_code/catalog_status on both POST and GET (resolve failure degrades to raw extraction, F1). `web/app/doctor/page.tsx` sets insurer + plan before order + code so the Service dropdown selects. `api/policies._service_codes_for` now delegates to `catalog_resolve.service_codes_for` (one code normalizer for UI and engine). Fixed a banned literal in a `service_matcher` comment that had `test_no_hardcoding` red.
+Why: Uploading a live X-ray report produced service "ct iFdentified" and code 77341 read out of the accession number, and even correct wording left the Service dropdown blank because it only selects on an exact catalog label.
+Documents tested (insurer, role, sha256 prefix, tier used): `05_Imaging_XRay_Report_Mitchell_SAMPLE_1.pdf` (synthetic patient report, not a policy) against live catalog: Northwind Mutual / Open Access PPO / 2026 (9 live items) and UHC Dual Complete OH-S3 (90 live items). Tier: label match over live accepted items; no model call needed for the match.
+Before (scorecard): extract service_category "ct iFdentified", diagnosis_codes ["77341"]; order_desk had no plan; Service dropdown blank. eval not run.
+After (scorecard): extract service_category "MRI of the lumbar spine", diagnosis_codes []; resolve -> matched, order_text "MRI lumbar spine without contrast (72148)", service_code 72148, Northwind Mutual / Open Access PPO / 2026; Order Desk shows that option selected and submit enabled (browser-checked). Tests 95 passed, 1 skipped (was 89 passed, 1 failed, 1 skipped); new `tests/test_catalog_resolve.py` 5 passed. eval not run.
+Decision: Prefer a recommended service over the study a report documents, since PA is for the service being requested. Never emit a service outside the catalog: unresolved orders keep the clinician's wording with status ambiguous/none and candidates for review. Plan identity stays unset when matches span plans. Known limit: label matching is only as good as the catalog, so a thin catalog can map a near-miss order (e.g. an X-ray order with no X-ray row) onto the closest imaging row; the clinician sees the catalog label in the dropdown before submitting.
+
+## 2026-09-27 01:55, Auto
+Change: EOC Prior auth extracted-rules tab — surface pa_status/marker/codes in review-queue; rename PA tab to Prior auth with Required/Conditional/Not required subfilters; Refresh PA flags + optional listing PDF via POST /reconcile-pa; library Prior auth deep link (?tab=pa, ?role=benefit_summary).
+Why: PA flags lived only as a thin boolean filter; listing reconcile and pa_status taxonomy had no UI.
+Documents tested: Northwind Mutual summary-of-benefits (a763a641). eval not run.
+Before / After: eval not run.
+Decision: Keep one policy detail page (constitution A2); Prior auth is a first-class review filter for benefit_summary, not a separate route.

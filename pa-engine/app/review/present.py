@@ -16,12 +16,18 @@ def present_item(item: dict) -> dict:
         pa = True
     if pa is not True and evidence_says_pa(evidence):
         pa = True
+    status = pa_status_of(data, pa)
     why = explain(item, evidence, cost, pa)
     exception = exception_text(data, evidence)
+    codes = [str(c).strip() for c in (data.get("service_codes") or []) if str(c).strip()]
     return {
         "title": label,
         "cost_share": cost,
         "pa_required": bool(pa) if pa is not None else None,
+        "pa_status": status,
+        "marker_used": data.get("marker_used"),
+        "service_codes": codes,
+        "listing_index": data.get("listing_index"),
         "has_exception": bool(exception),
         "exception": exception,
         "limits": limits(evidence),
@@ -29,6 +35,18 @@ def present_item(item: dict) -> dict:
         "why": why,
         "criteria": criteria_text(data, evidence),
     }
+
+
+def pa_status_of(data: dict, pa_required: bool | None) -> str | None:
+    """Normalize stored PA taxonomy for the review UI (required / conditional / not_required)."""
+    status = data.get("pa_status")
+    if status in {"required", "conditional", "not_required"}:
+        return status
+    if pa_required is True:
+        return "required"
+    if pa_required is False:
+        return "not_required"
+    return None
 
 
 def cost_share(evidence: str, data: dict) -> str:

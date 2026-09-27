@@ -1,0 +1,125 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { api } from "@/lib/api";
+
+type Provider = { id: string; full_name: string; specialty?: string };
+
+type UploadResult = {
+  upload_id: string;
+  extraction_status: "success" | "partial" | "failed";
+  order_desk: {
+    patient_id: string;
+    order_text: string;
+    service_code: string;
+    clinical_notes: string;
+    source_upload_id: string;
+  };
+};
+
+export default function DoctorUploadPage() {
+  const router = useRouter();
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [providerId, setProviderId] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [result, setResult] = useState<UploadResult | null>(null);
+
+  useEffect(() => {
+    api<{ providers: Provider[] }>("/providers")
+      .then((data) => {
+        setProviders(data.providers || []);
+        if (data.providers?.[0]) setProviderId(data.providers[0].id);
+      })
+      .catch((err) => setError(err instanceof Error ? err.message : "Could not load clinicians"));
+  }, []);
+
+  async function onSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!file) return;
+    setBusy(true);
+    setError("");
+    setResult(null);
+    try {
+      const body = new FormData();
+      body.set("file", file);
+      if (providerId) body.set("provider_id", providerId);
+      const data = await api<UploadResult>("/uploads/patient-report", { method: "POST", body });
+      setResult(data);
+      const params = new URLSearchParams();
+      params.set("upload_id", data.upload_id);
+      router.push(`/doctor?${params.toString()}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <main>
+      <header className="page-head">
+        <p className="kicker">Order desk</p>
+        <h1 className="title">Upload patient report</h1>
+        <p className="lead">
+          Drop a clinical PDF or report. ClearPath extracts what it can, then opens the Order Desk
+          so you can review, pick the plan, and run coverage.
+        </p>
+      </header>
+
+      {error && <p className="badge amber">{error}</p>}
+
+      <form className="card form-card" onSubmit={onSubmit} style={{ maxWidth: "36rem" }}>
+        <label className="field">
+          Ordering clinician
+          <select value={providerId} onChange={(e) => setProviderId(e.target.value)}>
+            {providers.map((provider) => (
+              <option key={provider.id} value={provider.id}>
+                {provider.full_name}
+                {provider.specialty ? ` | ${provider.specialty}` : ""}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          Patient report
+          <span className="file-drop">
+            <span className="file-drop-icon" aria-hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 16V7" />
+                <path d="M8.5 10.5 12 7l3.5 3.5" />
+                <path d="M5 17.5v1A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5v-1" />
+              </svg>
+            </span>
+            <span className="file-drop-copy">
+              <strong>{file ? "Change file" : "Choose a file"}</strong>
+              <span>{file ? file.name : "PDF, image, or scanned report"}</span>
+            </span>
+            <input
+              type="file"
+              accept="application/pdf,image/*,.txt,.png,.jpg,.jpeg"
+              required
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+            />
+          </span>
+        </label>
+        <div className="row">
+          <button className="btn" disabled={busy || !file}>
+            {busy ? "Extracting..." : "Extract and open Order Desk"}
+          </button>
+          <Link className="btn secondary" href="/doctor">
+            Skip to Order Desk
+          </Link>
+        </div>
+      </form>
+
+      {result && (
+        <p className="badge green" style={{ marginTop: "1rem" }}>
+          Extraction {result.extraction_status}. Opening Order Desk...
+        </p>
+      )}
+    </main>
+  );
+}

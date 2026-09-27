@@ -1,0 +1,903 @@
+{
+  "source_file": "UHC_OH-S3_2026_service_codes.pdf",
+  "plan_name": "UHC Dual Complete OH-S3 (HMO-POS D-SNP)",
+  "plan_year": "2026",
+  "title": "Example Billing Codes by Benefit Category",
+  "note": "Demo/reference mapping from uploaded PDF; representative example codes for broad categories.",
+  "categories": [
+    {
+      "seq": 1,
+      "service_label": "Acupuncture for chronic low back pain",
+      "codes": [
+        "97810"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Acupuncture, 1+ needles, without electrical stimulation, initial 15 min",
+      "code_raw": "97810"
+    },
+    {
+      "seq": 2,
+      "service_label": "Ambulance services",
+      "codes": [
+        "A0429"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Ambulance service, BLS, emergency transport",
+      "code_raw": "A0429"
+    },
+    {
+      "seq": 3,
+      "service_label": "Annual routine physical exam",
+      "codes": [
+        "99397"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Periodic comprehensive preventive exam, established patient 65+",
+      "code_raw": "99397"
+    },
+    {
+      "seq": 4,
+      "service_label": "Annual wellness visit",
+      "codes": [
+        "G0439"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Annual wellness visit, subsequent",
+      "code_raw": "G0439"
+    },
+    {
+      "seq": 5,
+      "service_label": "Bone mass measurement",
+      "codes": [
+        "77080"
+      ],
+      "code_system": "CPT",
+      "descriptor": "DXA bone density study, axial skeleton",
+      "code_raw": "77080"
+    },
+    {
+      "seq": 6,
+      "service_label": "Breast cancer screening (mammograms)",
+      "codes": [
+        "77067"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Screening mammography, bilateral, incl. tomosynthesis",
+      "code_raw": "77067"
+    },
+    {
+      "seq": 7,
+      "service_label": "Cardiac rehabilitation services",
+      "codes": [
+        "G0422"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Cardiac rehab, with continuous ECG monitoring, per session",
+      "code_raw": "G0422"
+    },
+    {
+      "seq": 8,
+      "service_label": "Cardiovascular disease risk reduction visit",
+      "codes": [
+        "G0446"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Intensive behavioral therapy for cardiovascular disease, 15 min",
+      "code_raw": "G0446"
+    },
+    {
+      "seq": 9,
+      "service_label": "Cardiovascular disease screening tests",
+      "codes": [
+        "80061"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Lipid panel",
+      "code_raw": "80061"
+    },
+    {
+      "seq": 10,
+      "service_label": "Cervical and vaginal cancer screening",
+      "codes": [
+        "Q0091"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Obtaining screening Pap smear specimen",
+      "code_raw": "Q0091"
+    },
+    {
+      "seq": 11,
+      "service_label": "Chiropractic services",
+      "codes": [
+        "98940"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Chiropractic manipulative treatment, spinal, 1-2 regions",
+      "code_raw": "98940"
+    },
+    {
+      "seq": 12,
+      "service_label": "Chronic care management services (incl. chronic pain management)",
+      "codes": [
+        "99490"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Chronic care management, 20 min, non-complex",
+      "code_raw": "99490"
+    },
+    {
+      "seq": 13,
+      "service_label": "Colorectal cancer screening",
+      "codes": [
+        "G0121"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Colorectal cancer screening colonoscopy, not high risk",
+      "code_raw": "G0121"
+    },
+    {
+      "seq": 14,
+      "service_label": "Outpatient diagnostic colonoscopy",
+      "codes": [
+        "45385"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Colonoscopy with removal of tumor/polyp by snare",
+      "code_raw": "45385"
+    },
+    {
+      "seq": 15,
+      "service_label": "Dental services (Medicare-covered, limited medical circumstances)",
+      "codes": [
+        "D7140"
+      ],
+      "code_system": "CDT",
+      "descriptor": "Extraction, erupted tooth CDT is a separate code set maintained by the American Dental Association, not CPT/HCPCS",
+      "code_raw": "D7140"
+    },
+    {
+      "seq": 16,
+      "service_label": "Routine dental benefits",
+      "codes": [
+        "D1110"
+      ],
+      "code_system": "CDT",
+      "descriptor": "Prophylaxis, adult CDT is a separate code set maintained by the American Dental Association, not CPT/HCPCS",
+      "code_raw": "D1110"
+    },
+    {
+      "seq": 17,
+      "service_label": "Depression screening",
+      "codes": [
+        "G0444"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Annual depression screening, 15 min",
+      "code_raw": "G0444"
+    },
+    {
+      "seq": 18,
+      "service_label": "Diabetes screening",
+      "codes": [
+        "82947"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Glucose, quantitative, blood",
+      "code_raw": "82947"
+    },
+    {
+      "seq": 19,
+      "service_label": "Diabetes self-management training, diabetic services and supplies",
+      "codes": [
+        "G0108"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "DSMT, individual, per 30 min",
+      "code_raw": "G0108"
+    },
+    {
+      "seq": 20,
+      "service_label": "Continuous glucose monitors (CGM) and supplies",
+      "codes": [
+        "E2103",
+        "A4239"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Non-adjunctive CGM receiver / monthly supply allowance Also see A4239: https://www.aapc.com/co des/hcpcs-codes/A4239",
+      "code_raw": "E2103 / A4239"
+    },
+    {
+      "seq": 21,
+      "service_label": "Diabetic therapeutic shoes/inserts",
+      "codes": [
+        "A5500"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Diabetic shoe, depth or custom-molded, per shoe",
+      "code_raw": "A5500"
+    },
+    {
+      "seq": 22,
+      "service_label": "Durable medical equipment (DME) and related supplies (incl. oxygen)",
+      "codes": [
+        "E1390"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Oxygen concentrator, single delivery port DME spans thousands of HCPCS E/K codes; this is one representative example",
+      "code_raw": "E1390"
+    },
+    {
+      "seq": 23,
+      "service_label": "Emergency care",
+      "codes": [
+        "99285"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Emergency department visit, high severity",
+      "code_raw": "99285"
+    },
+    {
+      "seq": 24,
+      "service_label": "Fitness program",
+      "codes": [
+        "S9451"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Exercise classes, non-physician provider, per session S-codes are payer-specific/local codes, not standardized by CMS nationally",
+      "code_raw": "S9451"
+    },
+    {
+      "seq": 25,
+      "service_label": "Hearing services - diagnostic hearing/balance exam",
+      "codes": [
+        "92557"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Comprehensive audiometry threshold evaluation",
+      "code_raw": "92557"
+    },
+    {
+      "seq": 26,
+      "service_label": "Hearing services - routine hearing exam",
+      "codes": [
+        "92552"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Pure tone audiometry, air only",
+      "code_raw": "92552"
+    },
+    {
+      "seq": 27,
+      "service_label": "Hearing services - hearing aids",
+      "codes": [
+        "V5060",
+        "V5261"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Hearing aid, monaural BTE / digital binaural BTE Also see V5261: https://www.aapc.com/co des/hcpcs-codes/V5261",
+      "code_raw": "V5060 / V5261"
+    },
+    {
+      "seq": 28,
+      "service_label": "HIV screening",
+      "codes": [
+        "G0432"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "HIV antibody testing, EIA",
+      "code_raw": "G0432"
+    },
+    {
+      "seq": 29,
+      "service_label": "Home health agency care",
+      "codes": [
+        "G0299"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Direct skilled nursing services of an RN, home health setting",
+      "code_raw": "G0299"
+    },
+    {
+      "seq": 30,
+      "service_label": "Home infusion therapy",
+      "codes": [
+        "96365"
+      ],
+      "code_system": "CPT",
+      "descriptor": "IV infusion, initial, up to 1 hour",
+      "code_raw": "96365"
+    },
+    {
+      "seq": 31,
+      "service_label": "Hospice care",
+      "codes": [
+        "G0182"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Physician supervision of a hospice patient Hospice is mostly billed under revenue codes on institutional claims, not CPT/HCPCS alone",
+      "code_raw": "G0182"
+    },
+    {
+      "seq": 32,
+      "service_label": "Immunizations (flu, pneumonia, COVID-19, Hepatitis B, others)",
+      "codes": [
+        "90686"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Influenza vaccine, quadrivalent, preservative free",
+      "code_raw": "90686"
+    },
+    {
+      "seq": 33,
+      "service_label": "Inpatient hospital care",
+      "codes": [
+        "99223"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Initial hospital care, highest complexity Facility side is billed via MS-DRG, not CPT; this is the physician E/M code",
+      "code_raw": "99223"
+    },
+    {
+      "seq": 34,
+      "service_label": "Inpatient services in a psychiatric hospital",
+      "codes": [
+        "90853"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Group psychotherapy Facility side billed via revenue codes",
+      "code_raw": "90853"
+    },
+    {
+      "seq": 35,
+      "service_label": "Meal benefit (post-inpatient/SNF)",
+      "codes": [
+        "S9977"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Meals, per diem, not otherwise classified Supplemental benefit; S-codes are payer-specific, not a standardized national CMS benefit",
+      "code_raw": "S9977"
+    },
+    {
+      "seq": 36,
+      "service_label": "Medical nutrition therapy",
+      "codes": [
+        "97802"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Medical nutrition therapy, initial assessment, individual, 15 min",
+      "code_raw": "97802"
+    },
+    {
+      "seq": 37,
+      "service_label": "Medicare diabetes prevention program (MDPP)",
+      "codes": [
+        "G9873"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "First MDPP core session attended (Expanded Model)",
+      "code_raw": "G9873"
+    },
+    {
+      "seq": 38,
+      "service_label": "Medicare Part B drugs (chemo, injectables, infused drugs, etc.)",
+      "codes": [
+        "J9035"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Injection, bevacizumab, 10 mg Part B drugs span hundreds of J-codes; this is one representative example",
+      "code_raw": "J9035"
+    },
+    {
+      "seq": 39,
+      "service_label": "Obesity screening and therapy",
+      "codes": [
+        "G0447"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Face-to-face behavioral counseling for obesity, 15 min",
+      "code_raw": "G0447"
+    },
+    {
+      "seq": 40,
+      "service_label": "Opioid treatment program (OTP) services",
+      "codes": [
+        "G2067"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Medication-assisted treatment, methadone; weekly bundle",
+      "code_raw": "G2067"
+    },
+    {
+      "seq": 41,
+      "service_label": "Outpatient diagnostic tests - X-rays",
+      "codes": [
+        "71046"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Radiologic exam, chest, 2 views",
+      "code_raw": "71046"
+    },
+    {
+      "seq": 42,
+      "service_label": "Outpatient diagnostic tests - radiation therapy",
+      "codes": [
+        "77412"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Radiation treatment delivery",
+      "code_raw": "77412"
+    },
+    {
+      "seq": 43,
+      "service_label": "Outpatient diagnostic tests - surgical supplies/splints/casts",
+      "codes": [
+        "29075"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Application of cast, forearm to hand",
+      "code_raw": "29075"
+    },
+    {
+      "seq": 44,
+      "service_label": "Outpatient diagnostic tests - laboratory tests",
+      "codes": [
+        "85025"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Complete blood count (CBC), automated, with differential Lab spans thousands of CPT codes 80047-89398; this is one representative example",
+      "code_raw": "85025"
+    },
+    {
+      "seq": 45,
+      "service_label": "Outpatient diagnostic tests - blood services",
+      "codes": [
+        "P9021"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Red blood cells, per unit",
+      "code_raw": "P9021"
+    },
+    {
+      "seq": 46,
+      "service_label": "Outpatient diagnostic tests - non-radiological diagnostic services (EKG, PFTs, sleep studies, etc.)",
+      "codes": [
+        "93000"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Electrocardiogram, complete, with interpretation",
+      "code_raw": "93000"
+    },
+    {
+      "seq": 47,
+      "service_label": "Outpatient diagnostic tests - radiological diagnostic services (CT, MRI, PET, etc.)",
+      "codes": [
+        "72148"
+      ],
+      "code_system": "CPT",
+      "descriptor": "MRI, spinal canal and contents, lumbar, without contrast This is the example code you gave",
+      "code_raw": "72148"
+    },
+    {
+      "seq": 48,
+      "service_label": "Outpatient hospital observation",
+      "codes": [
+        "G0378"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Hospital observation service, per hour",
+      "code_raw": "G0378"
+    },
+    {
+      "seq": 49,
+      "service_label": "Outpatient hospital services (general umbrella category)",
+      "codes": [],
+      "code_system": "N/A",
+      "descriptor": "Umbrella category, no single code; see specific sub-service rows",
+      "code_raw": "N/A"
+    },
+    {
+      "seq": 50,
+      "service_label": "Outpatient mental health care (individual & group therapy)",
+      "codes": [
+        "90837"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Psychotherapy, 60 minutes",
+      "code_raw": "90837"
+    },
+    {
+      "seq": 51,
+      "service_label": "Outpatient rehabilitation services (PT/OT/speech-language therapy, incl. CORFs)",
+      "codes": [
+        "97110"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Therapeutic exercise",
+      "code_raw": "97110"
+    },
+    {
+      "seq": 52,
+      "service_label": "Outpatient substance use disorder services (individual & group therapy)",
+      "codes": [
+        "H0004"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Behavioral health counseling and therapy",
+      "code_raw": "H0004"
+    },
+    {
+      "seq": 53,
+      "service_label": "Outpatient surgery at ambulatory surgical center",
+      "codes": [
+        "29881"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Knee arthroscopy with meniscectomy",
+      "code_raw": "29881"
+    },
+    {
+      "seq": 54,
+      "service_label": "Outpatient surgery at hospital outpatient facility",
+      "codes": [
+        "47562"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Laparoscopic cholecystectomy",
+      "code_raw": "47562"
+    },
+    {
+      "seq": 55,
+      "service_label": "Over-the-counter (OTC) credit",
+      "codes": [],
+      "code_system": "N/A",
+      "descriptor": "Supplemental benefit allowance, no medical billing code applies",
+      "code_raw": "N/A"
+    },
+    {
+      "seq": 56,
+      "service_label": "Home/bath safety devices, fitness equipment, support services, healthy food & utilities (SSBCI)",
+      "codes": [],
+      "code_system": "N/A",
+      "descriptor": "Supplemental benefit allowance, no standardized medical billing code applies",
+      "code_raw": "N/A"
+    },
+    {
+      "seq": 57,
+      "service_label": "Partial hospitalization and intensive outpatient services",
+      "codes": [
+        "G0410"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Partial hospitalization, group psychotherapy, per session",
+      "code_raw": "G0410"
+    },
+    {
+      "seq": 58,
+      "service_label": "Physician/practitioner services - PCP office visit",
+      "codes": [
+        "99213"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Office/outpatient visit, established patient, level 3",
+      "code_raw": "99213"
+    },
+    {
+      "seq": 59,
+      "service_label": "Physician/practitioner services - specialist consultat ion/diagnosis/treatment",
+      "codes": [
+        "99204"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Office/outpatient visit, new patient, level 4",
+      "code_raw": "99204"
+    },
+    {
+      "seq": 60,
+      "service_label": "Physician/practitioner services - basic hearing/balance exam by specialist",
+      "codes": [
+        "92557"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Comprehensive audiometry threshold evaluation",
+      "code_raw": "92557"
+    },
+    {
+      "seq": 61,
+      "service_label": "Physician/practitioner services - telehealth (additional virtual visits beyond Original Medicare)",
+      "codes": [
+        "99421"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Online digital E/M service, 5-10 minutes",
+      "code_raw": "99421"
+    },
+    {
+      "seq": 62,
+      "service_label": "Physician/practitioner services - Medicare-covered telehealth services",
+      "codes": [
+        "99213"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Office visit E/M delivered via telehealth (modifier 95) Same E/M codes as in-person, billed with telehealth modifier 95 or GT",
+      "code_raw": "99213-95"
+    },
+    {
+      "seq": 63,
+      "service_label": "Physician/practitioner services - second opinion prior to surgery",
+      "codes": [
+        "99245"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Office consultation, comprehensive, highest complexity Medicare largely replaced consultation codes with standard E/M codes; some payers still recognize 992xx consult codes",
+      "code_raw": "99245"
+    },
+    {
+      "seq": 64,
+      "service_label": "Physician/practitioner services - anticoagulation monitoring (Coumadin Clinic)",
+      "codes": [
+        "G0250"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Physician review/interpretation of home INR monitoring",
+      "code_raw": "G0250"
+    },
+    {
+      "seq": 65,
+      "service_label": "Physician/practitioner services - home visits by physician/non-physician",
+      "codes": [
+        "99345"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Home visit, new patient, high complexity",
+      "code_raw": "99345"
+    },
+    {
+      "seq": 66,
+      "service_label": "Podiatry services",
+      "codes": [
+        "11721"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Debridement of nails, 6 or more",
+      "code_raw": "11721"
+    },
+    {
+      "seq": 67,
+      "service_label": "Additional routine foot care",
+      "codes": [
+        "G0127"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Trimming of dystrophic nails",
+      "code_raw": "G0127"
+    },
+    {
+      "seq": 68,
+      "service_label": "Pre-exposure prophylaxis (PrEP) for HIV prevention",
+      "codes": [],
+      "code_system": "N/A",
+      "descriptor": "No single dedicated CPT/HCPCS code; medication billed via NDC through pharmacy claim, counseling via standard preventive E/M codes (e.g. 99401)",
+      "code_raw": "N/A"
+    },
+    {
+      "seq": 69,
+      "service_label": "Prostate cancer screening exams",
+      "codes": [
+        "G0103"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Prostate cancer screening, PSA test Companion code G0102 covers the digital rectal exam",
+      "code_raw": "G0103"
+    },
+    {
+      "seq": 70,
+      "service_label": "Prosthetic and orthotic devices and related supplies",
+      "codes": [
+        "L5856"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Microprocessor-controlled knee prosthesis Prosthetics/orthotics span hundreds of L-codes; this is one representative example",
+      "code_raw": "L5856"
+    },
+    {
+      "seq": 71,
+      "service_label": "Pulmonary rehabilitation services",
+      "codes": [
+        "G0424"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Pulmonary rehabilitation, per session",
+      "code_raw": "G0424"
+    },
+    {
+      "seq": 72,
+      "service_label": "Screening and counseling to reduce alcohol misuse",
+      "codes": [
+        "G0442"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Annual alcohol misuse screening, 15 min",
+      "code_raw": "G0442"
+    },
+    {
+      "seq": 73,
+      "service_label": "Screening for Hepatitis C virus infection",
+      "codes": [
+        "G0472"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Hepatitis C antibody screening",
+      "code_raw": "G0472"
+    },
+    {
+      "seq": 74,
+      "service_label": "Screening for lung cancer with LDCT",
+      "codes": [
+        "G0297"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Low dose CT scan for lung cancer screening",
+      "code_raw": "G0297"
+    },
+    {
+      "seq": 75,
+      "service_label": "Screening for sexually transmitted infections (STIs) and counseling",
+      "codes": [
+        "G0445"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "High intensity behavioral counseling, STI prevention",
+      "code_raw": "G0445"
+    },
+    {
+      "seq": 76,
+      "service_label": "Services to treat kidney disease (kidney disease education)",
+      "codes": [
+        "G0420"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Kidney disease education, individual, per session per hour",
+      "code_raw": "G0420"
+    },
+    {
+      "seq": 77,
+      "service_label": "Outpatient dialysis treatments",
+      "codes": [
+        "90935"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Hemodialysis, one evaluation",
+      "code_raw": "90935"
+    },
+    {
+      "seq": 78,
+      "service_label": "Self-dialysis training",
+      "codes": [
+        "90989"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Dialysis training, patient, incomplete course",
+      "code_raw": "90989"
+    },
+    {
+      "seq": 79,
+      "service_label": "Skilled nursing facility (SNF) care",
+      "codes": [
+        "99306"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Initial nursing facility care, highest complexity",
+      "code_raw": "99306"
+    },
+    {
+      "seq": 80,
+      "service_label": "Smoking and tobacco use cessation counseling",
+      "codes": [
+        "G0436"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Smoking cessation counseling, asymptomatic patient, per session",
+      "code_raw": "G0436"
+    },
+    {
+      "seq": 81,
+      "service_label": "Supervised exercise therapy (SET)",
+      "codes": [
+        "93668"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Peripheral arterial disease rehabilitation, per session",
+      "code_raw": "93668"
+    },
+    {
+      "seq": 82,
+      "service_label": "Routine transportation",
+      "codes": [
+        "A0100"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Nonemergency transportation, taxi",
+      "code_raw": "A0100"
+    },
+    {
+      "seq": 83,
+      "service_label": "Urgently needed services",
+      "codes": [
+        "S9088"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Services provided in an urgent care center S-codes are payer-specific/local codes, not standardized by CMS nationally",
+      "code_raw": "S9088"
+    },
+    {
+      "seq": 84,
+      "service_label": "Vision services - outpatient physician services (eye disease diagnosis/treatment)",
+      "codes": [
+        "92014"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Ophthalmological exam, established patient, comprehensive",
+      "code_raw": "92014"
+    },
+    {
+      "seq": 85,
+      "service_label": "Vision services - glaucoma screening",
+      "codes": [
+        "G0117"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Glaucoma screening, performed by optometrist/ophthalmologist",
+      "code_raw": "G0117"
+    },
+    {
+      "seq": 86,
+      "service_label": "Vision services - diabetic eye exams",
+      "codes": [
+        "92134"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Optical coherence tomography (OCT), retina",
+      "code_raw": "92134"
+    },
+    {
+      "seq": 87,
+      "service_label": "Vision services - eyeglasses/contact lenses after cataract surgery",
+      "codes": [
+        "V2020"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Frames, purchases",
+      "code_raw": "V2020"
+    },
+    {
+      "seq": 88,
+      "service_label": "Vision services - routine eye exam",
+      "codes": [
+        "92004"
+      ],
+      "code_system": "CPT",
+      "descriptor": "Comprehensive ophthalmological exam, new patient",
+      "code_raw": "92004"
+    },
+    {
+      "seq": 89,
+      "service_label": "Vision services - routine eyewear",
+      "codes": [
+        "V2020"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Frames, purchases",
+      "code_raw": "V2020"
+    },
+    {
+      "seq": 90,
+      "service_label": "\"Welcome to Medicare\" preventive visit",
+      "codes": [
+        "G0402"
+      ],
+      "code_system": "HCPCS",
+      "descriptor": "Initial Preventive Physical Examination (IPPE)",
+      "code_raw": "G0402"
+    }
+  ]
+}

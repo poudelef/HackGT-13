@@ -98,8 +98,8 @@ export default function InsurerPaPage() {
     <main>
       <div className="row" style={{ justifyContent: "space-between" }}>
         <div>
-          <p className="muted"><Link href="/insurer">Insurer review</Link> | packet</p>
-          <h1 className="title">{view.patient.full_name} | {view.order_text}</h1>
+          <p className="muted"><Link href="/insurer">Insurer queue</Link>  packet review</p>
+          <h1 className="title">{view.patient.full_name}  {view.order_text}</h1>
           <p className="muted">
             {[view.ordering_provider.full_name, view.ordering_provider.specialty, view.service_code, view.criteria_source?.title].filter(Boolean).join(" | ")}
           </p>
@@ -113,7 +113,7 @@ export default function InsurerPaPage() {
 
       {view.pa_determination && (
         <section className="card" style={{ marginTop: 12, borderColor: view.pa_determination.pa_required ? "#c9a227" : undefined }}>
-          <p className="title">PA determination for this treatment</p>
+          <p className="title">Coverage determination</p>
           <p><strong>{view.pa_determination.label}</strong></p>
           <p className="muted">
             {[view.insurer, view.plan_name, view.plan_year].filter(Boolean).join(" | ")}
@@ -140,9 +140,9 @@ export default function InsurerPaPage() {
       )}
 
       <section style={{ marginTop: 16 }}>
-        <p className="title">Doctor questionnaire</p>
+        <p className="title">Clinician checklist</p>
         <p className="muted">
-          Clinical questions the ordering clinician answered for this order (order-scoped). Re-check confirms PA is still required before you decide.
+          What the ordering clinician answered for this order. Confirm PA is still required, then decide.
         </p>
         {view.questionnaire && (view.questionnaire.item || []).length > 0 && (
           <div className="card" style={{ marginTop: 8 }}>
@@ -184,8 +184,8 @@ export default function InsurerPaPage() {
 
       {canDecide && (
         <section className="card" style={{ marginTop: 16 }}>
-          <p className="title">Insurer decision</p>
-          <p className="muted">Approve when the packet is sufficient, or ask for additional evidence. There is no deny action here (G1).</p>
+          <p className="title">Your decision</p>
+          <p className="muted">Approve the packet, or ask the clinician for additional evidence.</p>
           <button
             type="button"
             className="btn secondary"

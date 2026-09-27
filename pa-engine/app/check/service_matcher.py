@@ -111,8 +111,8 @@ def _coverage_by_label(coverage: list[dict], order_text: str) -> dict | None:
         overlap = len(order_words & label_words)
         codes = [str(c) for c in (item.get("service_codes") or [])]
         code_hit = any(c and c in order for c in codes)
-        # Short orders ("MRI lumbar") often share only one strong token with chart labels
-        # ("Advanced imaging MRI 72148"); accept single-token overlap when signal is high.
+        # Short orders ("MRI lumbar") often share only one strong token with a chart label
+        # that also carries a billing code; accept single-token overlap when signal is high.
         if code_hit or overlap >= 2 or (overlap >= 1 and len(order_words) <= 3):
             scored.append(item)
         elif order.lower() in label.lower():

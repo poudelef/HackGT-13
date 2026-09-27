@@ -189,6 +189,7 @@ create table if not exists pa_requests (
   service_category text,
   source_document_reference text,
   ingest_payload text,
+  source_upload_id text,
   questionnaire_id text,
   questionnaire_response_id text,
   created_at text default current_timestamp, updated_at text default current_timestamp
@@ -237,6 +238,7 @@ create table if not exists pa_answers (
   fill_method text,
   evidence_text text,
   evidence_record_id text references clinical_records(id),
+  source_document_id text references documents(id),
   review_state text not null default 'unanswered',
   edited_by_human integer not null default 0,
   rejected_ai_value text, reject_reason text, attestation text,
@@ -282,6 +284,7 @@ JSON_COLS = {
     "review_log": ["before", "after"],
     "fhir_questionnaires": ["resource"],
     "fhir_questionnaire_responses": ["resource"],
+    "uploaded_reports": ["extracted_json"],
 }
 
 
@@ -377,6 +380,28 @@ class Repository:
               questionnaire_id text,
               resource text not null,
               created_at text default current_timestamp
+            )"""
+        )
+
+        answer_cols = {row[1] for row in self._conn.execute("pragma table_info(pa_answers)").fetchall()}
+        if "source_document_id" not in answer_cols:
+            self._conn.execute("alter table pa_answers add column source_document_id text")
+
+        pa_cols = {row[1] for row in self._conn.execute("pragma table_info(pa_requests)").fetchall()}
+        if "source_upload_id" not in pa_cols:
+            self._conn.execute("alter table pa_requests add column source_upload_id text")
+
+        self._conn.execute(
+            """create table if not exists uploaded_reports (
+              id text primary key,
+              patient_id text references patients(id),
+              uploaded_by text references providers(id),
+              file_name text not null,
+              file_reference text not null,
+              storage_path text not null,
+              extracted_json text,
+              extraction_status text not null check (extraction_status in ('success','failed','partial')),
+              uploaded_at text default current_timestamp
             )"""
         )
 
@@ -968,6 +993,39 @@ class Repository:
             f"update documents set {sets} where id = ?",
             tuple(_dump(v) for v in changes.values()) + (document_id,),
         )
+
+    def create_uploaded_report(self, row: dict) -> dict:
+        row = {**row, "id": row.get("id") or new_id(), "uploaded_at": row.get("uploaded_at") or now()}
+        cols = list(row)
+        self._insert(
+            f"insert into uploaded_reports ({','.join(cols)}) values ({','.join('?' for _ in cols)})",
+            tuple(_dump(row[c]) for c in cols),
+        )
+        return self.get_uploaded_report(row["id"])  # type: ignore[return-value]
+
+    def get_uploaded_report(self, upload_id: str) -> dict | None:
+        return self._one("uploaded_reports", "select * from uploaded_reports where id = ?", (upload_id,))
+
+    def update_uploaded_report(self, upload_id: str, changes: dict) -> dict:
+        sets = ", ".join(f"{k} = ?" for k in changes)
+        self._write(
+            f"update uploaded_reports set {sets} where id = ?",
+            tuple(_dump(v) for v in changes.values()) + (upload_id,),
+        )
+        return self.get_uploaded_report(upload_id)  # type: ignore[return-value]
+
+    def find_patient_by_name_dob(self, full_name: str, dob: str | None = None) -> dict | None:
+        name = (full_name or "").strip().lower()
+        if not name:
+            return None
+        rows = self.list_patients()
+        for row in rows:
+            if (row.get("full_name") or "").strip().lower() != name:
+                continue
+            if dob and row.get("dob") and row.get("dob") != dob:
+                continue
+            return row
+        return None
 
     def insert_record(self, row: dict) -> dict:
         row = {**row, "id": row.get("id") or new_id(), "created_at": now()}

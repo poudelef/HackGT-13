@@ -79,11 +79,31 @@ def _leaf(node: dict, answers: dict, clock: date):
     if ok:
         return True, None
     fail = node.get("fail") or "Documented value {value} is short of the policy value."
-    return False, fail.replace("{value}", _show(value))
+    return False, fail.replace("{value}", _show(_as_bool(value) if isinstance(expected, bool) else value))
+
+
+def _as_bool(value):
+    """Accept clinician Yes/No text as well as true booleans."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)) and value in {0, 1}:
+        return bool(value)
+    if isinstance(value, str):
+        low = value.strip().lower()
+        if low in {"true", "yes", "y", "1"}:
+            return True
+        if low in {"false", "no", "n", "0"}:
+            return False
+    return value
 
 
 def _compare(op, value, expected, unit, clock, answers, node):
     if op == "eq":
+        if isinstance(expected, bool):
+            coerced = _as_bool(value)
+            if not isinstance(coerced, bool):
+                return None
+            return coerced == expected
         return value == expected
     if op in {"gte", "gt", "lte", "lt"}:
         try:

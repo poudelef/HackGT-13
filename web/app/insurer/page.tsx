@@ -44,46 +44,56 @@ export default function InsurerQueuePage() {
 
   return (
     <main>
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <div>
-          <h1 className="title">Insurer review</h1>
-          <p className="muted">
-            Submitted prior authorization packets land here. Review the questionnaires, ask for more evidence if needed, or approve.
-            This gate never produces a denial (constitution G1).
-          </p>
+      <header className="page-head">
+        <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <p className="kicker">Payer desk</p>
+            <h1 className="title">Insurer queue</h1>
+            <p className="lead">Open packets from clinicians. Approve when complete, or ask for the missing evidence.</p>
+          </div>
+          <button type="button" className="btn secondary" onClick={load} disabled={busy}>
+            {busy ? "Refreshing..." : "Refresh"}
+          </button>
         </div>
-        <button type="button" className="btn secondary" onClick={load} disabled={busy}>{busy ? "Refreshing..." : "Refresh"}</button>
-      </div>
+      </header>
       {error && <p className="badge amber">{error}</p>}
 
-      <QueueSection title="Needs insurer decision" empty="No packets waiting." rows={open} />
-      <QueueSection title="Waiting on clinician evidence" empty="No open information requests." rows={waiting} />
-      <QueueSection title="Approved" empty="No approvals yet." rows={done} />
+      <QueueSection title="Ready for decision" empty="No packets waiting on a decision." rows={open} />
+      <QueueSection title="Waiting on clinician" empty="Nothing pending more evidence." rows={waiting} />
+      <QueueSection title="Approved" empty="No approvals in this session yet." rows={done} />
     </main>
   );
 }
 
 function QueueSection({ title, empty, rows }: { title: string; empty: string; rows: RequestRow[] }) {
   return (
-    <section style={{ marginTop: 20 }}>
-      <p className="title">{title} <span className="muted">({rows.length})</span></p>
+    <section className="section-gap">
+      <p className="title">
+        {title} <span className="muted">({rows.length})</span>
+      </p>
       {rows.length === 0 && <p className="muted">{empty}</p>}
-      {rows.map((row) => (
-        <article key={row.id} className="card" style={{ marginTop: 8 }}>
-          <div className="row" style={{ justifyContent: "space-between" }}>
-            <div>
-              <p className="title" style={{ marginBottom: 4 }}>{row.patient?.full_name || "Patient"} | {row.order_text || "Order"}</p>
-              <p className="muted">
-                {[row.insurer, row.plan_name, row.plan_year, row.service_code].filter(Boolean).join(" | ")}
-              </p>
+      <div className="stack" style={{ marginTop: "0.75rem" }}>
+        {rows.map((row) => (
+          <article key={row.id} className="card">
+            <div className="row" style={{ justifyContent: "space-between" }}>
+              <div>
+                <p className="title" style={{ marginBottom: 4 }}>
+                  {row.patient?.full_name || "Patient"}  {row.order_text || "Order"}
+                </p>
+                <p className="muted">
+                  {[row.insurer, row.plan_name, row.service_code].filter(Boolean).join("  ")}
+                </p>
+              </div>
+              <div className="row">
+                <StatusBadge status={row.status} />
+                <Link className="btn" href={`/insurer/pa/${row.id}`}>
+                  Open
+                </Link>
+              </div>
             </div>
-            <div className="row">
-              <StatusBadge status={row.status} />
-              <Link className="btn" href={`/insurer/pa/${row.id}`}>Open</Link>
-            </div>
-          </div>
-        </article>
-      ))}
+          </article>
+        ))}
+      </div>
     </section>
   );
 }

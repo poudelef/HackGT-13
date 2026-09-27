@@ -24,6 +24,10 @@ type Item = {
   review_note?: string | null;
   cost_share?: string;
   pa_required?: boolean | null;
+  pa_status?: "required" | "conditional" | "not_required" | string | null;
+  marker_used?: string | null;
+  service_codes?: string[];
+  listing_index?: number | null;
   has_exception?: boolean;
   exception?: string | null;
   limits?: string | null;
@@ -36,12 +40,24 @@ type Item = {
     service_label?: string;
     evidence_text?: string;
     pa_required?: boolean;
+    pa_status?: string;
+    marker_used?: string | null;
+    service_codes?: string[];
     questions?: { link_id: string; text: string; answer_type: string }[];
     pass_condition?: object;
   };
 };
 
 type FilterTab = "needs" | "all" | "pa" | "exceptions" | "edited" | "low";
+type PaSubFilter = "all" | "required" | "conditional" | "not_required";
+
+function itemPaStatus(item: Item): "required" | "conditional" | "not_required" | null {
+  const raw = item.pa_status || item.data?.pa_status || null;
+  if (raw === "required" || raw === "conditional" || raw === "not_required") return raw;
+  if (item.pa_required === true) return "required";
+  if (item.pa_required === false) return "not_required";
+  return null;
+}
 
 function needsDecision(item: Item): boolean {
   return !["accepted", "edited", "rejected"].includes(item.review_state);
@@ -62,17 +78,21 @@ export default function PolicyPage() {
   const [policy, setPolicy] = useState<Record<string, unknown> | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [filter, setFilter] = useState<FilterTab>("needs");
+  const [paSubFilter, setPaSubFilter] = useState<PaSubFilter>("required");
   const [error, setError] = useState("");
   const [cacheNote, setCacheNote] = useState("");
   const [bootLive, setBootLive] = useState(false);
   const [justWentLive, setJustWentLive] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [submitBusy, setSubmitBusy] = useState(false);
+  const [reconcileBusy, setReconcileBusy] = useState(false);
+  const [reconcileNote, setReconcileNote] = useState("");
+  const [listingFile, setListingFile] = useState<File | null>(null);
   const [reviewer, setReviewer] = useState("Suman");
   const [editing, setEditing] = useState<Item | null>(null);
   const [draft, setDraft] = useState("");
   const [costDraft, setCostDraft] = useState("");
-  const [paDraft, setPaDraft] = useState(false);
+  const [paStatusDraft, setPaStatusDraft] = useState<"required" | "conditional" | "not_required">("not_required");
   const [evidenceDraft, setEvidenceDraft] = useState("");
   const [note, setNote] = useState("");
   const [fhir, setFhir] = useState("");
@@ -102,6 +122,8 @@ export default function PolicyPage() {
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     setBootLive(query.get("live") === "1");
+    const tab = query.get("tab");
+    if (tab === "pa" || tab === "prior-auth") setFilter("pa");
     if (query.get("cached") === "1") {
       const sha = query.get("sha") || "";
       setCacheNote(
@@ -114,10 +136,12 @@ export default function PolicyPage() {
 
   useEffect(() => {
     let stop = false;
-    async function pull() {
+    let timer: ReturnType<typeof setInterval> | null = null;
+
+    async function pull(): Promise<boolean> {
       try {
         const detail = await api<Record<string, unknown>>(`/policies/${params.id}`);
-        if (stop) return;
+        if (stop) return false;
         setPolicy(detail);
         setError("");
         const status = String(detail.status || "");
@@ -125,16 +149,33 @@ export default function PolicyPage() {
         if (!running) {
           const queue = await api<{ items: Item[] }>(`/policies/${params.id}/review-queue`);
           if (!stop) setItems(queue.items);
+          return false;
         }
+        setItems([]);
+        return true;
       } catch (err) {
         if (!stop) setError(err instanceof Error ? err.message : "Could not load this policy");
+        return false;
       }
     }
-    pull();
-    const timer = setInterval(pull, 1200);
+
+    void (async () => {
+      const stillRunning = await pull();
+      if (stop || !stillRunning) return;
+      timer = setInterval(() => {
+        void (async () => {
+          const running = await pull();
+          if (!running && timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+        })();
+      }, 1200);
+    })();
+
     return () => {
       stop = true;
-      clearInterval(timer);
+      if (timer) clearInterval(timer);
     };
   }, [params.id]);
 
@@ -194,7 +235,7 @@ export default function PolicyPage() {
     setEditing(item);
     setDraft(item.title || item.summary || "");
     setCostDraft(item.cost_share || "");
-    setPaDraft(Boolean(item.pa_required));
+    setPaStatusDraft(itemPaStatus(item) || (item.pa_required ? "required" : "not_required"));
     setEvidenceDraft(item.evidence || item.data.evidence_text || "");
     setNote(item.review_note || "Reviewed and corrected against the cited page.");
     window.setTimeout(() => editRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 50);
@@ -212,11 +253,45 @@ export default function PolicyPage() {
       service_label: draft,
       requirement_text: editing.item_type === "rule" ? draft : editing.data.requirement_text,
       evidence_text: evidenceDraft || editing.data.evidence_text,
-      pa_required: paDraft,
+      pa_status: paStatusDraft,
+      pa_required: paStatusDraft !== "not_required",
       cost_share: costDraft,
       page: editing.page,
     };
     await act(`/policies/${params.id}/items/${editing.id}/edit`, { reviewer, note, data }, editing.id);
+  }
+
+  async function reconcilePa(withListing: boolean) {
+    setError("");
+    setReconcileBusy(true);
+    setReconcileNote("");
+    try {
+      const body = new FormData();
+      if (withListing && listingFile) body.set("listing", listingFile);
+      const result = await api<{
+        totals?: {
+          required?: number;
+          conditional?: number;
+          not_required?: number;
+          updated?: number;
+          listing_applied?: number;
+          total?: number;
+        };
+      }>(`/policies/${params.id}/reconcile-pa`, { method: "POST", body: withListing && listingFile ? body : undefined });
+      const totals = result.totals || {};
+      setReconcileNote(
+        `PA flags refreshed. Required ${totals.required ?? 0} · Conditional ${totals.conditional ?? 0} · Not required ${totals.not_required ?? 0}` +
+          (totals.updated != null ? ` · Updated ${totals.updated}` : "") +
+          (totals.listing_applied ? ` · Listing rows applied ${totals.listing_applied}` : ""),
+      );
+      setListingFile(null);
+      setFilter("pa");
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not refresh prior-auth flags");
+    } finally {
+      setReconcileBusy(false);
+    }
   }
 
   async function showFhir() {
@@ -297,17 +372,28 @@ export default function PolicyPage() {
     status: step.status as IngestionStep["status"],
   }));
   const sureCount = items.filter((item) => ruleConfidence(item).sure).length;
+  const isEoc = role === "benefit_summary";
+  const paCounts = {
+    required: items.filter((item) => itemPaStatus(item) === "required").length,
+    conditional: items.filter((item) => itemPaStatus(item) === "conditional").length,
+    not_required: items.filter((item) => itemPaStatus(item) === "not_required").length,
+  };
   const counts = {
     needs: items.filter(needsDecision).length,
     all: items.length,
-    pa: items.filter((item) => item.pa_required === true).length,
+    pa: isEoc ? paCounts.required + paCounts.conditional : items.filter((item) => item.pa_required === true).length,
     exceptions: items.filter((item) => item.has_exception).length,
     edited: items.filter((item) => item.edited_by_human || item.review_state === "edited").length,
     low: items.filter((item) => !ruleConfidence(item).sure).length,
   };
   const visible = items.filter((item) => {
     if (filter === "needs") return needsDecision(item);
-    if (filter === "pa") return item.pa_required === true;
+    if (filter === "pa") {
+      if (!isEoc) return item.pa_required === true;
+      const status = itemPaStatus(item);
+      if (paSubFilter === "all") return status != null;
+      return status === paSubFilter;
+    }
     if (filter === "exceptions") return Boolean(item.has_exception);
     if (filter === "edited") return item.edited_by_human || item.review_state === "edited";
     if (filter === "low") return !ruleConfidence(item).sure;
@@ -316,11 +402,12 @@ export default function PolicyPage() {
   const tabs: { id: FilterTab; label: string; count: number }[] = [
     { id: "needs", label: "Needs review", count: counts.needs },
     { id: "all", label: "All", count: counts.all },
-    { id: "pa", label: "PA required", count: counts.pa },
+    { id: "pa", label: isEoc ? "Prior auth" : "PA required", count: counts.pa },
     { id: "exceptions", label: "Exceptions", count: counts.exceptions },
     { id: "edited", label: "Human edited", count: counts.edited },
     { id: "low", label: "Low confidence", count: counts.low },
   ];
+  const paReconcile = ((policy.validation_report as { pa_reconcile?: Record<string, number> } | undefined) || {}).pa_reconcile;
 
   return (
     <main>
@@ -422,6 +509,68 @@ export default function PolicyPage() {
               </button>
             ))}
           </div>
+          {filter === "pa" && isEoc && (
+            <section className="card" style={{ marginTop: 8 }}>
+              <p className="title">Prior auth extracted from this Evidence of Coverage</p>
+              <p className="muted">
+                These flags come from chart markers (and an optional PA listing PDF). They drive whether an order needs a questionnaire.
+              </p>
+              <div className="row" style={{ marginTop: 10, flexWrap: "wrap", gap: 8 }}>
+                <span className="badge amber">Required {paCounts.required}</span>
+                <span className="badge blue">Conditional {paCounts.conditional}</span>
+                <span className="badge gray">Not required {paCounts.not_required}</span>
+                {paReconcile && (
+                  <span className="badge green">
+                    Last reconcile updated {paReconcile.updated ?? 0}
+                    {paReconcile.listing_applied ? ` · listing ${paReconcile.listing_applied}` : ""}
+                  </span>
+                )}
+              </div>
+              <div className="filter-tabs" style={{ marginTop: 12 }} role="tablist" aria-label="Prior auth status">
+                {(
+                  [
+                    ["required", "Required", paCounts.required],
+                    ["conditional", "Conditional", paCounts.conditional],
+                    ["not_required", "Not required", paCounts.not_required],
+                    ["all", "All statuses", paCounts.required + paCounts.conditional + paCounts.not_required],
+                  ] as [PaSubFilter, string, number][]
+                ).map(([id, label, count]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    role="tab"
+                    aria-selected={paSubFilter === id}
+                    className={paSubFilter === id ? "filter-tab active" : "filter-tab"}
+                    onClick={() => setPaSubFilter(id)}
+                  >
+                    {label} <span>{count}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="row" style={{ marginTop: 12, alignItems: "flex-end", flexWrap: "wrap", gap: 10 }}>
+                <button type="button" className="btn secondary" disabled={reconcileBusy} onClick={() => reconcilePa(false)}>
+                  {reconcileBusy ? "Refreshing..." : "Refresh PA flags from EOC"}
+                </button>
+                <label className="field" style={{ minWidth: "14rem", margin: 0 }}>
+                  Optional PA listing PDF
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={(e) => setListingFile(e.target.files?.[0] || null)}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="btn"
+                  disabled={reconcileBusy || !listingFile}
+                  onClick={() => reconcilePa(true)}
+                >
+                  Apply listing + refresh
+                </button>
+              </div>
+              {reconcileNote && <p className="badge green" style={{ marginTop: 10 }}>{reconcileNote}</p>}
+            </section>
+          )}
           {items.length === 0 && <p className="muted">No items yet. Drug blocks are extracted one at a time.</p>}
           {items.length > 0 && visible.length === 0 && filter === "needs" && (
             <div className="card" style={{ marginTop: 8 }}>
@@ -472,8 +621,15 @@ export default function PolicyPage() {
                     </span>
                     <JudgeBadge verdict={item.judge_verdict} />
                     {item.edited_by_human && <LockBadge />}
-                    {item.pa_required === true && <span className="badge amber">PA required</span>}
-                    {item.pa_required === false && <span className="badge gray">No PA</span>}
+                    {(() => {
+                      const status = itemPaStatus(item);
+                      if (status === "required") return <span className="badge amber">PA required</span>;
+                      if (status === "conditional") return <span className="badge blue">PA conditional</span>;
+                      if (status === "not_required") return <span className="badge gray">No PA</span>;
+                      if (item.pa_required === true) return <span className="badge amber">PA required</span>;
+                      if (item.pa_required === false) return <span className="badge gray">No PA</span>;
+                      return null;
+                    })()}
                     {item.has_exception && <span className="badge amber">Exception</span>}
                   </div>
                   <span className="muted">p.{item.page}</span>
@@ -484,6 +640,18 @@ export default function PolicyPage() {
                   {item.limits && <p><span className="fact-key">Limits</span> {item.limits}</p>}
                   <p><span className="fact-key">Page</span> {item.page}</p>
                   <p><span className="fact-key">Decision</span> {decisionLabel(item.review_state)}</p>
+                  {itemPaStatus(item) && (
+                    <p><span className="fact-key">Prior auth</span> {itemPaStatus(item)?.replaceAll("_", " ")}</p>
+                  )}
+                  {(item.service_codes || item.data.service_codes || []).length > 0 && (
+                    <p><span className="fact-key">Codes</span> {(item.service_codes || item.data.service_codes || []).join(", ")}</p>
+                  )}
+                  {(item.marker_used || item.data.marker_used) && (
+                    <p><span className="fact-key">Marker</span> {item.marker_used || item.data.marker_used}</p>
+                  )}
+                  {item.listing_index != null && (
+                    <p><span className="fact-key">Listing #</span> {item.listing_index}</p>
+                  )}
                 </div>
                 {item.criteria && (
                   <div className="criteria-box">
@@ -548,9 +716,16 @@ export default function PolicyPage() {
                     <label className="field">Service / rule name<textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={2} /></label>
                     <label className="field">Cost share<input value={costDraft} onChange={(e) => setCostDraft(e.target.value)} /></label>
                     <label className="field">Evidence quote<textarea value={evidenceDraft} onChange={(e) => setEvidenceDraft(e.target.value)} rows={3} /></label>
-                    <label className="row" style={{ gap: 6 }}>
-                      <input type="checkbox" checked={paDraft} onChange={(e) => setPaDraft(e.target.checked)} />
-                      Prior authorization required
+                    <label className="field">
+                      Prior authorization
+                      <select
+                        value={paStatusDraft}
+                        onChange={(e) => setPaStatusDraft(e.target.value as "required" | "conditional" | "not_required")}
+                      >
+                        <option value="required">Required</option>
+                        <option value="conditional">Conditional</option>
+                        <option value="not_required">Not required</option>
+                      </select>
                     </label>
                     <label className="field">Note (required)<input value={note} onChange={(e) => setNote(e.target.value)} /></label>
                     <div className="row">

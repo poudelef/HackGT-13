@@ -30,7 +30,7 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   }
   let response: Response;
   try {
-    response = await fetch(`${API}${path}`, { ...init, headers });
+    response = await fetch(`${API}${path}`, { ...init, headers, cache: "no-store" });
   } catch {
     throw new ApiError("The prior authorization engine is not reachable. Start it, then retry.");
   }

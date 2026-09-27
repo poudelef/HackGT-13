@@ -311,25 +311,90 @@ def reject_answer(pa_id: str, answer_id: str, provider_id: str, reason: str) -> 
 def enter_answer(pa_id: str, answer_id: str, body: dict) -> dict:
     import json as _json
 
+    from app.config import settings
+
     repo = get_repo()
     answer, criterion, pa = _answer_context(pa_id, answer_id)
     provider_id = body.get("provider_id")
     attestation = (body.get("attestation") or "").strip()
     evidence = (body.get("evidence_text") or "").strip()
+    source_kind = (body.get("source_kind") or "chart_document").strip().lower()
+    source_id = (body.get("source_document_id") or "").strip()
     if not repo.get_provider(provider_id):
         raise ApiError("POLICY_NOT_FOUND", "That clinician is not on file.", 404)
     if len(attestation) < 10:
         raise ApiError("ATTESTATION_REQUIRED", "An attestation of at least 10 characters is required.", 400)
-    if not evidence or not body.get("source_document_id"):
-        raise ApiError("ATTESTATION_REQUIRED", "A source document and the evidence text are required.", 400)
+    if not evidence:
+        raise ApiError("ATTESTATION_REQUIRED", "Evidence text is required.", 400)
     if "value" not in body:
         raise ApiError("REASON_REQUIRED", "A value is required.", 400)
+    value = _coerce_entered_value(answer.get("answer_type") or "string", body["value"])
+
+    allowed = {"chart_document", "clinician_note", "not_in_chart"}
+    if source_kind not in allowed:
+        raise ApiError(
+            "REASON_REQUIRED",
+            "Source must be a chart document, clinician note, or not-documented attestation.",
+            400,
+        )
+
+    if source_kind == "chart_document":
+        if not source_id:
+            raise ApiError("ATTESTATION_REQUIRED", "Pick a chart document, or choose another source option.", 400)
+        document = repo.get_document(source_id)
+        if document is None or document.get("patient_id") != pa["patient_id"]:
+            raise ApiError("POLICY_NOT_FOUND", "That source document is not on this patient's chart.", 404)
+        if not document.get("in_chart"):
+            repo.update_document(source_id, {"in_chart": 1})
+    else:
+        # H4 still requires a source: create a labeled clinician note (or absence note) on the chart.
+        stamp = now()[:10]
+        if source_kind == "not_in_chart":
+            file_name = f"Not documented — clinician attestation ({stamp}).txt"
+            doc_type = "absence_attestation"
+            header = "Clinician attestation: finding not documented in the chart."
+        else:
+            file_name = f"Clinician note ({stamp}).txt"
+            doc_type = "clinician_note"
+            header = "Clinician chart note entered during prior authorization."
+        settings.storage_dir.mkdir(parents=True, exist_ok=True)
+        dest = settings.storage_dir / f"{answer_id[:8]}-{stamp}-{doc_type}.txt"
+        dest.write_text(
+            f"{header}\n\nEvidence:\n{evidence}\n\nAttestation:\n{attestation}\n",
+            encoding="utf-8",
+        )
+        document = repo.create_document(
+            {
+                "patient_id": pa["patient_id"],
+                "file_name": file_name,
+                "storage_path": str(dest),
+                "doc_type": doc_type,
+                "in_chart": 1,
+                "synthetic": 1,
+            }
+        )
+        source_id = document["id"]
+
+    record = repo.insert_record(
+        {
+            "patient_id": pa["patient_id"],
+            "resource_type": "DocumentReference",
+            "record_kind": source_kind if source_kind != "chart_document" else "clinician_evidence",
+            "body": evidence,
+            "author_provider_id": provider_id,
+            "source_document_id": source_id,
+            "start_date": now()[:10],
+            "synthetic": 1 if source_kind != "chart_document" else 0,
+        }
+    )
     repo.write_answer(
         answer_id,
         {
-            "value": _json.dumps(body["value"]),
+            "value": _json.dumps(value),
             "unit": body.get("unit") or answer.get("unit"),
             "evidence_text": evidence,
+            "evidence_record_id": record["id"],
+            "source_document_id": source_id,
             "review_state": "clinician_entered",
             "edited_by_human": True,
             "fill_method": "clinician_entered",
@@ -340,10 +405,22 @@ def enter_answer(pa_id: str, answer_id: str, body: dict) -> dict:
         },
         actor=provider_id,
     )
-    _log_clinician(provider_id, "pa_answers", answer_id, "answer_enter", {"value": answer.get("value")}, {"value": body["value"]}, attestation, pa_id)
+    _log_clinician(provider_id, "pa_answers", answer_id, "answer_enter", {"value": answer.get("value")}, {"value": value, "source_kind": source_kind}, attestation, pa_id)
     _recalculate(pa, criterion)
     repo.add_event(pa_id, "answer_entered", "A clinician entered an answer", "clinician")
     return repo.get_pa(pa_id)
+
+
+def _coerce_entered_value(answer_type: str, value):
+    from app.check.pass_eval import _as_bool
+    from app.errors import ApiError
+
+    if answer_type == "boolean":
+        coerced = _as_bool(value)
+        if not isinstance(coerced, bool):
+            raise ApiError("REASON_REQUIRED", "Use Yes or No for this question.", 400)
+        return coerced
+    return value
 
 
 def verify_criterion(pa_id: str, criterion_id: str, provider_id: str) -> dict:

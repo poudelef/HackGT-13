@@ -546,6 +546,9 @@ def check(payload: dict) -> dict:
             "drug_name": payload.get("drug_name"),
             "status": "matching",
             "readiness": 0,
+            "source_upload_id": payload.get("source_upload_id"),
+            "source_document_reference": payload.get("source_document_reference"),
+            "service_category": payload.get("service_category") or payload.get("order_text"),
         }
     )
     recorder = EpisodeRecorder("pa_request", pa["id"], run["id"])
@@ -617,6 +620,18 @@ def submit(pa_id: str, provider_id: str) -> dict:
     repo = get_repo()
     pa = _pa(pa_id)
     view = present(pa_id)
+    if pa["status"] == "not_required":
+        raise ApiError(
+            "PA_NOT_REQUIRED",
+            "Prior authorization is not required for this order. No packet can be submitted.",
+            409,
+        )
+    if pa["status"] in {"approved", "submitted", "in_review"}:
+        raise ApiError(
+            "INVALID_TRANSITION",
+            f"This request is already {pa['status'].replace('_', ' ')}.",
+            409,
+        )
     if not view["can_submit"]:
         raise ApiError("NOT_ALL_VERIFIED", "Every rule must be verified before submission.", 409)
     _move(pa, "submitted")
@@ -680,6 +695,12 @@ def submit(pa_id: str, provider_id: str) -> dict:
 
 def preview(pa_id: str) -> dict:
     pa = _pa(pa_id)
+    if pa["status"] == "not_required":
+        raise ApiError(
+            "PA_NOT_REQUIRED",
+            "Prior authorization is not required for this order. There is no submission packet to preview.",
+            409,
+        )
     if pa.get("submission_packet") and pa["status"] in {"submitted", "in_review", "approved", "info_requested"}:
         return pa["submission_packet"]
     view = present(pa_id)
@@ -1107,6 +1128,15 @@ def _tree(pa_id: str) -> list[dict]:
 def present(pa_id: str) -> dict:
     repo = get_repo()
     pa = _pa(pa_id)
+    # Re-score open rules so Yes/No text answers (e.g. exclusion "No") update status.
+    if pa.get("status") in {"needs_info", "ready_for_review", "info_requested"}:
+        from app.review.review import _recalculate
+
+        for criterion in repo.criteria_for(pa["id"]):
+            if criterion.get("verified_by"):
+                continue
+            _recalculate(pa, criterion)
+        pa = _pa(pa_id)
     patient = repo.get_patient(pa["patient_id"])
     provider = repo.get_provider(pa["ordering_provider_id"])
     criteria = []
@@ -1124,12 +1154,24 @@ def present(pa_id: str) -> dict:
                 record = repo._one("clinical_records", "select * from clinical_records where id = ?", (answer["evidence_record_id"],))
                 if record:
                     author = repo.get_provider(record["author_provider_id"]) if record.get("author_provider_id") else None
+                    doc = repo.get_document(record["source_document_id"]) if record.get("source_document_id") else None
                     source = {
                         "author": author["full_name"] if author else None,
                         "date": record.get("start_date"),
                         "document_id": record.get("source_document_id"),
+                        "file_name": doc["file_name"] if doc else None,
                         "record_id": record["id"],
                     }
+            if source is None and answer.get("source_document_id"):
+                doc = repo.get_document(answer["source_document_id"])
+                who = repo.get_provider(answer["answered_by"]) if answer.get("answered_by") else None
+                source = {
+                    "author": who["full_name"] if who else None,
+                    "date": (answer.get("answered_at") or "")[:10] or None,
+                    "document_id": answer.get("source_document_id"),
+                    "file_name": doc["file_name"] if doc else None,
+                    "record_id": None,
+                }
             questions.append(
                 {
                     "id": answer["id"],
@@ -1238,12 +1280,15 @@ def _pa_determination(pa: dict, coverage: dict | None) -> dict:
             "pa_required": None,
         }
     if pa["status"] == "not_required" or (coverage and coverage.get("pa_required") is False):
+        service = (coverage or {}).get("service_label") or pa.get("service_category") or pa.get("order_text")
         return {
             "requirement": "not_required",
             "label": "Prior authorization is not required for this treatment under this plan",
             "pa_required": False,
             "page": (coverage or {}).get("page"),
-            "evidence_text": (coverage or {}).get("evidence_text"),
+            "evidence_text": (coverage or {}).get("evidence_text") or pa.get("coverage_note"),
+            "service_label": service,
+            "document_url": (coverage or {}).get("document_url"),
         }
     status = (coverage or {}).get("pa_status") or "required"
     if status == "conditional":
