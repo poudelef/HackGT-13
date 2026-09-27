@@ -1,0 +1,418 @@
+"""Detect prior-authorization markers on benefit-chart pages.
+
+EOCs often put the marker on a later line of the same row (for example
+visit followed by an em-dash and two dagger characters). The dagger may also
+be spaced. This module never hardcodes a payer name.
+"""
+
+from __future__ import annotations
+
+import re
+
+# Double-dagger as printed in many Medicare EOCs: em-dash + dagger dagger, sometimes spaced.
+_DAGGER = "\u2020"  # dagger
+_DOUBLE = "\u2021"  # double dagger
+_EM = "\u2014"  # em dash
+
+_MARKER_RE = re.compile(
+    rf"(?:{_EM}|-)?\s*(?:{_DOUBLE}{_DOUBLE}|{_DOUBLE}|{_DAGGER}\s*{_DAGGER}|{_DAGGER}{_DAGGER})"
+)
+_AUTH_WORDS = (
+    "prior authorization",
+    "preauthorization",
+    "precertification",
+    "prior approval",
+    "authorization required",
+    "referral required",
+)
+_CONDITIONAL_WORDS = (
+    "referral may be required",
+    "may need prior authorization",
+    "may require prior authorization",
+    "prior authorization may be",
+    "conditional",
+)
+
+
+def marker_in_text(text: str) -> tuple[bool, str | None]:
+    """Return whether a PA marker appears, and the matched token."""
+    if not text:
+        return False, None
+    match = _MARKER_RE.search(text)
+    if match:
+        return True, match.group(0).replace(" ", "")
+    for token in (_DOUBLE + _DOUBLE, _DOUBLE, _DAGGER + _DAGGER, _EM + _DAGGER + _DAGGER):
+        if token in text:
+            return True, token
+    return False, None
+
+
+def line_pa_status(text: str) -> tuple[str, str | None]:
+    """Classify a text window: required | not_required | conditional."""
+    low = (text or "").lower()
+    hit, marker = marker_in_text(text or "")
+    # Explicit negatives win over a bare "prior authorization" phrase.
+    if re.search(
+        r"\bno (?:referral(?:/approval)?|prior authorization|preauthorization|precertification)\b"
+        r"|\bnot require(?:d)? prior authorization\b"
+        r"|\bprior authorization (?:is )?not required\b"
+        r"|\bwithout prior authorization\b",
+        low,
+    ):
+        if any(word in low for word in _CONDITIONAL_WORDS):
+            return "conditional", marker
+        return "not_required", None
+    if any(word in low for word in _CONDITIONAL_WORDS):
+        return "conditional", marker
+    if hit or any(word in low for word in _AUTH_WORDS):
+        return "required", marker
+    return "not_required", None
+
+
+def windows_by_service_line(page_text: str, *, look_ahead: int = 4) -> list[dict]:
+    """Pair a service-looking line with the next few lines (where markers often sit)."""
+    lines = [re.sub(r"\s+", " ", line).strip() for line in (page_text or "").splitlines()]
+    lines = [line for line in lines if line]
+    rows: list[dict] = []
+    for index, line in enumerate(lines):
+        if not re.match(r"[A-Z\u00b7\u2022\*]", line):
+            continue
+        if len(line) < 8 or len(line) > 160:
+            continue
+        if line.lower().startswith(("depending", "medicaid", "your ", "the ", "this ", "see ")):
+            continue
+        if _MARKER_RE.search(line) and len(re.findall(r"[A-Za-z]{4,}", line)) < 2:
+            continue
+        if re.match(r"^\$|\bnot covered\b", line, re.I):
+            continue
+        chunk = [line]
+        for nxt in lines[index + 1 : index + look_ahead + 1]:
+            if re.match(r"[A-Z]", nxt) and len(nxt) >= 12:
+                words = re.findall(r"[A-Za-z]{4,}", nxt)
+                # New capitalized service row stops the window (do not borrow its marker).
+                if len(words) >= 2 and not re.match(
+                    r"^(visit|network|copayment|coinsurance)\b", nxt, re.I
+                ):
+                    break
+            chunk.append(nxt)
+        window = "\n".join(chunk)
+        status, marker = line_pa_status(window)
+        rows.append(
+            {
+                "service_line": line,
+                "window": window,
+                "pa_status": status,
+                "pa_required": status in {"required", "conditional"},
+                "marker_used": marker,
+            }
+        )
+    return rows
+
+
+def annotate_item_from_pages(item: dict, pages: list[dict]) -> dict | None:
+    """Return data patches for pa_required / pa_status when the EOC page shows a marker."""
+    label = (item.get("service_label") or (item.get("data") or {}).get("service_label") or "").strip()
+    if len(label) < 4:
+        return None
+    page_no = int(item.get("page") or (item.get("data") or {}).get("page") or 0)
+    page_by = {int(p["page"]): p for p in pages}
+    candidates = []
+    if page_no in page_by:
+        candidates.append(page_by[page_no])
+    for delta in (-1, 1, 2):
+        other = page_by.get(page_no + delta)
+        if other:
+            candidates.append(other)
+    label_low = label.lower()
+    best = None
+    for page in candidates:
+        text = page.get("text") or ""
+        if label_low not in text.lower() and label_low[:24] not in text.lower():
+            continue
+        for row in windows_by_service_line(text):
+            service = row["service_line"].lower()
+            if not (label_low in service or service in label_low or label_low[:20] in service):
+                continue
+            if best is None or (row["pa_status"] == "required" and best["pa_status"] != "required"):
+                best = {**row, "page": page["page"]}
+            if row["pa_status"] == "required":
+                break
+        if best and best["pa_status"] == "required":
+            break
+    if best is None:
+        page = page_by.get(page_no)
+        if page is None:
+            return None
+        words = {
+            w
+            for w in re.findall(r"[a-z]{4,}", label_low)
+            if w not in {"with", "from", "that", "this", "services", "service"}
+        }
+        for row in windows_by_service_line(page.get("text") or ""):
+            service_words = set(re.findall(r"[a-z]{4,}", row["service_line"].lower()))
+            if words and len(words & service_words) >= max(1, min(2, len(words) // 2)):
+                best = {**row, "page": page_no}
+                break
+    if best is None:
+        return None
+    return {
+        "pa_required": best["pa_required"],
+        "pa_status": best["pa_status"],
+        "marker_used": best.get("marker_used"),
+    }
+
+
+def _listing_body_lines(text: str) -> list[str]:
+    raw = (text or "").replace("\r\n", "\n")
+    raw = re.sub(r"Conditiona\s*\n\s*l\b", "Conditional", raw, flags=re.I)
+    raw = re.sub(r"not-require\s*\n\s*d\b", "not-required", raw, flags=re.I)
+    raw = re.sub(r"Not\s*\n\s*required\b", "Not required", raw, flags=re.I)
+    lines = [re.sub(r"\s+", " ", line).strip() for line in raw.splitlines()]
+    lines = [line for line in lines if line]
+    start = 0
+    for index, line in enumerate(lines):
+        low = line.lower()
+        if "full benefit category" in low or "insurance.item" in low:
+            start = index + 1
+    while start < len(lines) and (
+        lines[start].startswith("#")
+        or lines[start].lower().startswith(("legend", "or network", "each row"))
+    ):
+        start += 1
+    return lines[start:]
+
+
+def _starts_listing_entry(line: str, number: int, lines: list[str], index: int) -> str | None:
+    """Return match kind if this line begins listing row `number`."""
+    if re.match(rf"^{number}\s+[A-Z\"\u201c\(]", line):
+        return "full"
+    if 10 <= number <= 99:
+        tens, ones = divmod(number, 10)
+        nxt = lines[index + 1] if index + 1 < len(lines) else ""
+        if re.fullmatch(rf"{tens}", line) and (
+            re.fullmatch(rf"{ones}", nxt) or re.match(rf"^{ones}\s+", nxt)
+        ):
+            return "split_digit"
+        if re.match(rf"^{tens}\s+[A-Z\"\u201c\(]", line) and (
+            re.fullmatch(rf"{ones}", nxt) or re.match(rf"^{ones}\s+", nxt)
+        ):
+            return "split_name"
+    return None
+
+
+def _fold_name_continuation(name: str, after: str) -> str:
+    """Append wrapped name fragments that appear after the status token."""
+    rest = re.sub(r"^[\s\d\-]+", "", after or "")
+    cont = re.match(
+        r"([A-Za-z][A-Za-z\-]*(?:\s+\([^)]+\)|\s+[A-Za-z][A-Za-z\-/]*){0,8})",
+        rest,
+    )
+    if not cont:
+        return name
+    frag = cont.group(1).strip()
+    if frag.lower() in {"d", "l"} or len(frag) < 3:
+        return name
+    frag = re.sub(r"\s+[dl]$", "", frag, flags=re.I).strip()
+    skip_prefixes = (
+        "referral",
+        "depends",
+        "only",
+        "may ",
+        "needed",
+        "paid",
+        "also",
+        "some ",
+        "must ",
+        "applies",
+        "manual",
+        "preventive",
+        "general",
+        "monthly",
+        "no ",
+        "waived",
+        "provided",
+        "combined",
+        "ssbci",
+        "conditional",
+        "true",
+        "false",
+    )
+    if not frag or frag.lower().startswith(skip_prefixes):
+        return name
+    return (name + " " + frag).strip()
+
+
+def _status_from_listing_block(block: str) -> tuple[str | None, str | None]:
+    """Return (status, name) from one joined listing entry."""
+    m = re.search(
+        r"\b(True|False)\s+(required|not-required|not-require|conditional)\b",
+        block,
+        re.I,
+    )
+    if m:
+        token = m.group(2).lower()
+        if token.startswith("not"):
+            status = "not_required"
+        elif token.startswith("cond"):
+            status = "conditional"
+        else:
+            status = "required"
+        name = _fold_name_continuation(block[: m.start()], block[m.end() :])
+        return status, name
+
+    block2 = re.sub(r"\bConditiona\b", "Conditional", block, flags=re.I)
+    if re.search(r"\bConditional\b", block2, re.I):
+        name = re.split(r"\bConditional\b", block2, maxsplit=1, flags=re.I)[0]
+        rest = re.split(r"\bConditional\b", block2, maxsplit=1, flags=re.I)[1]
+        skip = {
+            "may",
+            "need",
+            "depends",
+            "developing",
+            "administration",
+            "required",
+            "only",
+            "never",
+            "needed",
+        }
+        cont = re.search(r"\b([a-z][a-z\-]+)\s+l\b", rest)
+        if cont and cont.group(1) not in skip:
+            name = (name + " " + cont.group(1)).strip()
+        paren = re.search(r"(\([^)]+\))", rest[:48])
+        if paren:
+            name = (name + " " + paren.group(1)).strip()
+        return "conditional", name
+
+    if re.search(r"\bNot\s+required\b", block2, re.I):
+        name = re.split(r"\bNot\s+required\b", block2, maxsplit=1, flags=re.I)[0]
+        return "not_required", name
+
+    if re.search(r"\bNot\b", block2):
+        m_not = re.search(r"\bNot\b", block2)
+        assert m_not is not None
+        for m_req in re.finditer(r"\brequired\b", block2, re.I):
+            if m_req.start() <= m_not.end():
+                continue
+            before = block2[m_not.end() : m_req.start()]
+            if re.search(r"\bmay\s+be\b", before, re.I):
+                continue
+            words = re.findall(r"[A-Za-z]{3,}", before)
+            if len(words) <= 16:
+                name = block2[: m_not.start()]
+                lead = re.match(
+                    r"\s*(\([^)]+\)|(?:[a-z][a-z\-]+(?:\s+[a-z][a-z\-/]+){0,6}))",
+                    before,
+                )
+                if lead:
+                    frag = lead.group(1).strip()
+                    if not frag.lower().startswith(
+                        ("preventive", "general", "monthly", "paid", "no ", "also", "some ")
+                    ):
+                        name = (name + " " + frag).strip()
+                return "not_required", name
+
+    for m_req in re.finditer(r"\bRequired\b", block2):
+        prefix = block2[max(0, m_req.start() - 12) : m_req.start()].lower()
+        if "may be" in prefix or prefix.rstrip().endswith("not"):
+            continue
+        return "required", block2[: m_req.start()]
+    return None, None
+
+
+def parse_pa_listing_text(text: str) -> list[dict]:
+    """Parse a PA requirements listing (category + Required/Not required/Conditional)."""
+    lines = _listing_body_lines(text)
+    expected = 1
+    index = 0
+    found: list[tuple[int, list[str]]] = []
+    current: list[str] = []
+    while index < len(lines) and expected <= 100:
+        kind = _starts_listing_entry(lines[index], expected, lines, index)
+        if kind:
+            if current:
+                found.append((expected - 1, current))
+            if kind.startswith("split"):
+                current = [lines[index], lines[index + 1]]
+                index += 2
+            else:
+                current = [lines[index]]
+                index += 1
+            expected += 1
+            continue
+        if current:
+            current.append(lines[index])
+        index += 1
+    if current:
+        found.append((expected - 1, current))
+
+    rows: list[dict] = []
+    for number, block_lines in found:
+        block = " ".join(block_lines)
+        block = re.sub(rf"^{number}\s+", "", block)
+        if number >= 10:
+            tens, ones = divmod(number, 10)
+            block = re.sub(rf"^{tens}\s+{ones}\s+", "", block)
+            block = re.sub(rf"^{tens}\s+", "", block)
+            if re.match(rf"^{ones}\s+", block):
+                block = re.sub(rf"^{ones}\s+", "", block, count=1)
+        status, name = _status_from_listing_block(block)
+        if status is None or name is None:
+            continue
+        name = re.sub(r"\s+", " ", name).strip(" -\u2013\u2014|,")
+        name = re.sub(r"^\d+\s+", "", name)
+        name = re.sub(r"\s+[dl]$", "", name, flags=re.I).strip()
+        if len(name) < 4:
+            continue
+        rows.append(
+            {
+                "service_label": name[:160],
+                "pa_status": status,
+                "pa_required": status in {"required", "conditional"},
+                "listing_index": number,
+            }
+        )
+    return rows
+
+
+def significant_words(label: str) -> set[str]:
+    stop = {
+        "with",
+        "from",
+        "that",
+        "this",
+        "services",
+        "service",
+        "care",
+        "and",
+        "for",
+        "the",
+        "incl",
+        "including",
+        "related",
+        "other",
+        "etc",
+        "without",
+        "contrast",
+    }
+    # 3+ letters so short clinical tokens (mri, snf, pet) still match benefit labels.
+    return {w for w in re.findall(r"[a-z]{3,}", (label or "").lower()) if w not in stop}
+
+
+def labels_match(a: str, b: str) -> bool:
+    """True when two service labels refer to the same benefit row."""
+    ka = re.sub(r"[^a-z0-9]+", "", (a or "").lower())
+    kb = re.sub(r"[^a-z0-9]+", "", (b or "").lower())
+    if not ka or not kb:
+        return False
+    if ka == kb:
+        return True
+    shorter, longer = (ka, kb) if len(ka) <= len(kb) else (kb, ka)
+    if len(shorter) >= 16 and shorter in longer and len(shorter) >= int(0.6 * len(longer)):
+        return True
+    wa, wb = significant_words(a), significant_words(b)
+    if not wa or not wb:
+        return False
+    overlap = len(wa & wb)
+    if overlap < 2:
+        return False
+    return overlap / len(wa | wb) > 0.5

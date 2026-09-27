@@ -1,0 +1,824 @@
+{
+  "plan_name": "UHC Dual Complete OH-S3 (HMO-POS D-SNP)",
+  "insurer": "UnitedHealthcare Insurance Company",
+  "plan_year": "2026",
+  "source": "UHC_OH-S3_2026_prior_authorization_fhir.pdf",
+  "expected_totals": {
+    "total": 90,
+    "required": 41,
+    "not_required": 41,
+    "conditional": 8
+  },
+  "categories": [
+    {
+      "seq": 1,
+      "service_label": "Acupuncture for chronic low back",
+      "pa_required": true,
+      "pa_status": "conditional",
+      "page": 57,
+      "note": "pain required; cost depends on PCP vs specialist setting",
+      "evidence_text": "1 Acupuncture for chronic low back True conditional CONDITIONAL: Referral may be 57"
+    },
+    {
+      "seq": 2,
+      "service_label": "Ambulance services",
+      "pa_required": true,
+      "pa_status": "conditional",
+      "page": 59,
+      "note": "transportation may need prior 0 authorization; emergency ambulance never requires it",
+      "evidence_text": "2 Ambulance services True conditional CONDITIONAL: Only non-emergency 59-6"
+    },
+    {
+      "seq": 3,
+      "service_label": "Annual routine physical exam",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 60,
+      "note": null,
+      "evidence_text": "3 Annual routine physical exam False not-require 60"
+    },
+    {
+      "seq": 4,
+      "service_label": "Annual wellness visit d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 60,
+      "note": "60-6",
+      "evidence_text": "4 Annual wellness visit False not-require 60-6"
+    },
+    {
+      "seq": 5,
+      "service_label": "Bone mass measurement",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 61,
+      "note": null,
+      "evidence_text": "5 Bone mass measurement False not-require 61"
+    },
+    {
+      "seq": 6,
+      "service_label": "Breast cancer screening (mammograms) d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 61,
+      "note": null,
+      "evidence_text": "6 Breast cancer screening False not-require 61"
+    },
+    {
+      "seq": 7,
+      "service_label": "Cardiac rehabilitation services",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 62,
+      "note": null,
+      "evidence_text": "7 Cardiac rehabilitation services True required 62"
+    },
+    {
+      "seq": 8,
+      "service_label": "Cardiovascular disease risk reduction visit d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 62,
+      "note": null,
+      "evidence_text": "8 Cardiovascular disease risk False not-require 62"
+    },
+    {
+      "seq": 9,
+      "service_label": "Cardiovascular disease screening tests d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 62,
+      "note": null,
+      "evidence_text": "9 Cardiovascular disease screening False not-require 62"
+    },
+    {
+      "seq": 10,
+      "service_label": "Cervical and vaginal cancer 0 screening d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 63,
+      "note": null,
+      "evidence_text": "1 Cervical and vaginal cancer False not-require 63"
+    },
+    {
+      "seq": 11,
+      "service_label": "Chiropractic services 1",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 63,
+      "note": "63-6",
+      "evidence_text": "1 Chiropractic services True required 63-6"
+    },
+    {
+      "seq": 12,
+      "service_label": "Chronic care management services 2 (incl. chronic pain management) required",
+      "pa_required": true,
+      "pa_status": "conditional",
+      "page": 65,
+      "note": "CONDITIONAL: Referral may be 65",
+      "evidence_text": "1 Chronic care management services True conditional CONDITIONAL: Referral may be 65"
+    },
+    {
+      "seq": 13,
+      "service_label": "Colorectal cancer screening 3 d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 65,
+      "note": "65-6",
+      "evidence_text": "1 Colorectal cancer screening False not-require 65-6"
+    },
+    {
+      "seq": 14,
+      "service_label": "Outpatient diagnostic colonoscopy 4",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 67,
+      "note": "67-6",
+      "evidence_text": "1 Outpatient diagnostic colonoscopy True required 67-6"
+    },
+    {
+      "seq": 15,
+      "service_label": "Dental services (Medicare-covered, 5 limited medical circumstances)",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 68,
+      "note": null,
+      "evidence_text": "1 Dental services (Medicare-covered, True required 68"
+    },
+    {
+      "seq": 16,
+      "service_label": "Routine dental benefits",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 68,
+      "note": "68, 1",
+      "evidence_text": "1 Routine dental benefits True required 68, 1"
+    },
+    {
+      "seq": 17,
+      "service_label": "Depression screening",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 68,
+      "note": null,
+      "evidence_text": "1 Depression screening False not-require 68"
+    },
+    {
+      "seq": 18,
+      "service_label": "Diabetes screening",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 69,
+      "note": null,
+      "evidence_text": "1 Diabetes screening False not-require 69"
+    },
+    {
+      "seq": 19,
+      "service_label": "Diabetes self-management training, 9 diabetic services and supplies d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 69,
+      "note": "69-7",
+      "evidence_text": "1 Diabetes self-management training, False not-require 69-7"
+    },
+    {
+      "seq": 20,
+      "service_label": "Continuous glucose monitors diabetes/other conditions via DME provider (approved 12 months); some pharmacy routes exempt with claim history of insulin/CGM use",
+      "pa_required": true,
+      "pa_status": "conditional",
+      "page": 69,
+      "note": "0 (CGM) and supplies diabetes; needed for Type 2 1",
+      "evidence_text": "2 Continuous glucose monitors True conditional CONDITIONAL: Not needed for Type 1 69-7"
+    },
+    {
+      "seq": 21,
+      "service_label": "Diabetic therapeutic shoes/inserts",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 71,
+      "note": null,
+      "evidence_text": "2 Diabetic therapeutic shoes/inserts True required 71"
+    },
+    {
+      "seq": 22,
+      "service_label": "Durable medical equipment (DME) 2 and related supplies (incl. oxygen)",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 72,
+      "note": null,
+      "evidence_text": "2 Durable medical equipment (DME) True required 72"
+    },
+    {
+      "seq": 23,
+      "service_label": "Emergency care 3 d 1, 72 -74",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 40,
+      "note": "40-4",
+      "evidence_text": "2 Emergency care False not-require 40-4"
+    },
+    {
+      "seq": 24,
+      "service_label": "Fitness program 4 d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 74,
+      "note": "74-7",
+      "evidence_text": "2 Fitness program False not-require 74-7"
+    },
+    {
+      "seq": 25,
+      "service_label": "Hearing services - diagnostic 5 hearing/balance exam",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 75,
+      "note": null,
+      "evidence_text": "2 Hearing services - diagnostic True required 75"
+    },
+    {
+      "seq": 26,
+      "service_label": "Hearing services - routine hearing 6 exam d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 75,
+      "note": null,
+      "evidence_text": "2 Hearing services - routine hearing False not-require 75"
+    },
+    {
+      "seq": 27,
+      "service_label": "Hearing services - hearing aids",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 76,
+      "note": null,
+      "evidence_text": "2 Hearing services - hearing aids True required 76"
+    },
+    {
+      "seq": 28,
+      "service_label": "HIV screening 8 d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 76,
+      "note": "76-7",
+      "evidence_text": "2 HIV screening False not-require 76-7"
+    },
+    {
+      "seq": 29,
+      "service_label": "Home health agency care",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 77,
+      "note": null,
+      "evidence_text": "2 Home health agency care True required 77"
+    },
+    {
+      "seq": 30,
+      "service_label": "Home infusion therapy 0 required",
+      "pa_required": true,
+      "pa_status": "conditional",
+      "page": 77,
+      "note": "CONDITIONAL: Referral may be 77-7",
+      "evidence_text": "3 Home infusion therapy True conditional CONDITIONAL: Referral may be 77-7"
+    },
+    {
+      "seq": 31,
+      "service_label": "Hospice care 1 d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 79,
+      "note": "79-8",
+      "evidence_text": "3 Hospice care False not-require 79-8"
+    },
+    {
+      "seq": 32,
+      "service_label": "Immunizations (flu, pneumonia, 2 COVID-19, Hepatitis B, others) d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 81,
+      "note": "81-8",
+      "evidence_text": "3 Immunizations (flu, pneumonia, False not-require 81-8"
+    },
+    {
+      "seq": 33,
+      "service_label": "Inpatient hospital care 3",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 82,
+      "note": "82-8",
+      "evidence_text": "3 Inpatient hospital care True required 82-8"
+    },
+    {
+      "seq": 34,
+      "service_label": "Inpatient services in a psychiatric 4 hospital",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 85,
+      "note": null,
+      "evidence_text": "3 Inpatient services in a psychiatric True required 85"
+    },
+    {
+      "seq": 35,
+      "service_label": "Meal benefit (post-inpatient/SNF)",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 87,
+      "note": null,
+      "evidence_text": "3 Meal benefit (post-inpatient/SNF) True required 87"
+    },
+    {
+      "seq": 36,
+      "service_label": "Medical nutrition therapy 6 d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 87,
+      "note": "87-8",
+      "evidence_text": "3 Medical nutrition therapy False not-require 87-8"
+    },
+    {
+      "seq": 37,
+      "service_label": "Medicare diabetes prevention 7 program (MDPP) d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 88,
+      "note": null,
+      "evidence_text": "3 Medicare diabetes prevention False not-require 88"
+    },
+    {
+      "seq": 38,
+      "service_label": "Medicare Part B drugs (chemo, 8 injectables, infused drugs, etc.)",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 88,
+      "note": "88-9",
+      "evidence_text": "3 Medicare Part B drugs (chemo, True required 88-9"
+    },
+    {
+      "seq": 39,
+      "service_label": "Obesity screening and therapy 9 d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 92,
+      "note": "92-9",
+      "evidence_text": "3 Obesity screening and therapy False not-require 92-9"
+    },
+    {
+      "seq": 40,
+      "service_label": "Opioid treatment program (OTP) 0 services",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 93,
+      "note": null,
+      "evidence_text": "4 Opioid treatment program (OTP) True required 93"
+    },
+    {
+      "seq": 41,
+      "service_label": "Outpatient diagnostic tests - X-rays",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 94,
+      "note": null,
+      "evidence_text": "4 Outpatient diagnostic tests - X-rays True required 94"
+    },
+    {
+      "seq": 42,
+      "service_label": "Outpatient diagnostic tests - 2 radiation therapy",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 94,
+      "note": null,
+      "evidence_text": "4 Outpatient diagnostic tests - True required 94"
+    },
+    {
+      "seq": 43,
+      "service_label": "Outpatient diagnostic tests - 3 surgical supplies/splints/casts",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 94,
+      "note": null,
+      "evidence_text": "4 Outpatient diagnostic tests - True required 94"
+    },
+    {
+      "seq": 44,
+      "service_label": "Outpatient diagnostic tests - 4 laboratory tests",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 94,
+      "note": null,
+      "evidence_text": "4 Outpatient diagnostic tests - True required 94"
+    },
+    {
+      "seq": 45,
+      "service_label": "Outpatient diagnostic tests - blood 5 services",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 95,
+      "note": null,
+      "evidence_text": "4 Outpatient diagnostic tests - blood True required 95"
+    },
+    {
+      "seq": 46,
+      "service_label": "Outpatient diagnostic tests - 6 non-radiological diagnostic services (EKG, PFTs, sleep studies, etc.)",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 95,
+      "note": null,
+      "evidence_text": "4 Outpatient diagnostic tests - True required 95"
+    },
+    {
+      "seq": 47,
+      "service_label": "Outpatient diagnostic tests - 7 radiological diagnostic services (CT, 6 MRI, PET, etc.)",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 95,
+      "note": "95-9",
+      "evidence_text": "4 Outpatient diagnostic tests - True required 95-9"
+    },
+    {
+      "seq": 48,
+      "service_label": "Outpatient hospital observation 8 7",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 96,
+      "note": "96-9",
+      "evidence_text": "4 Outpatient hospital observation True required 96-9"
+    },
+    {
+      "seq": 49,
+      "service_label": "Outpatient hospital services received",
+      "pa_required": true,
+      "pa_status": "conditional",
+      "page": 97,
+      "note": "9 (general umbrella category) depends on the specific sub-service 9",
+      "evidence_text": "4 Outpatient hospital services True conditional CONDITIONAL: PA requirement 97-9"
+    },
+    {
+      "seq": 50,
+      "service_label": "Outpatient mental health care 0 (individual & group therapy)",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 100,
+      "note": null,
+      "evidence_text": "5 Outpatient mental health care True required 100"
+    },
+    {
+      "seq": 51,
+      "service_label": "Outpatient rehabilitation services 1 (PT/OT/speech-language therapy, 101 incl. CORFs)",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 100,
+      "note": null,
+      "evidence_text": "5 Outpatient rehabilitation services True required 100-"
+    },
+    {
+      "seq": 52,
+      "service_label": "Outpatient substance use disorder 2 services (individual & group therapy)",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 101,
+      "note": null,
+      "evidence_text": "5 Outpatient substance use disorder True required 101"
+    },
+    {
+      "seq": 53,
+      "service_label": "Outpatient surgery at ambulatory 3 surgical center",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 101,
+      "note": null,
+      "evidence_text": "5 Outpatient surgery at ambulatory True required 101-"
+    },
+    {
+      "seq": 54,
+      "service_label": "Outpatient surgery at hospital 4 outpatient facility",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 101,
+      "note": null,
+      "evidence_text": "5 Outpatient surgery at hospital True required 101-"
+    },
+    {
+      "seq": 55,
+      "service_label": "Over-the-counter (OTC) credit",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 102,
+      "note": null,
+      "evidence_text": "5 Over-the-counter (OTC) credit False not-require 102-"
+    },
+    {
+      "seq": 56,
+      "service_label": "Home/bath safety devices, fitness 6 equipment, support services, d 105 healthy food & utilities (SSBCI)",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 103,
+      "note": null,
+      "evidence_text": "5 Home/bath safety devices, fitness False not-require 103-"
+    },
+    {
+      "seq": 57,
+      "service_label": "Partial hospitalization and intensive 7 outpatient services",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 106,
+      "note": null,
+      "evidence_text": "5 Partial hospitalization and intensive True required 106"
+    },
+    {
+      "seq": 58,
+      "service_label": "Physician/practitioner services - 8 PCP office visit d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 106,
+      "note": null,
+      "evidence_text": "5 Physician/practitioner services - False not-require 106-"
+    },
+    {
+      "seq": 59,
+      "service_label": "Physician/practitioner services - 9 specialist consultation/diagnosis/treatment",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 107,
+      "note": null,
+      "evidence_text": "5 Physician/practitioner services - True required 107"
+    },
+    {
+      "seq": 60,
+      "service_label": "Physician/practitioner services - 0 basic hearing/balance exam by specialist",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 107,
+      "note": null,
+      "evidence_text": "6 Physician/practitioner services - True required 107"
+    },
+    {
+      "seq": 61,
+      "service_label": "Physician/practitioner services - 1 telehealth (additional virtual visits d beyond Original Medicare)",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 108,
+      "note": null,
+      "evidence_text": "6 Physician/practitioner services - False not-require 108"
+    },
+    {
+      "seq": 62,
+      "service_label": "Physician/practitioner services - 2 Medicare-covered telehealth 111 services",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 109,
+      "note": null,
+      "evidence_text": "6 Physician/practitioner services - True required 109-"
+    },
+    {
+      "seq": 63,
+      "service_label": "Physician/practitioner services - 3 second opinion prior to surgery",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 111,
+      "note": null,
+      "evidence_text": "6 Physician/practitioner services - True required 111"
+    },
+    {
+      "seq": 64,
+      "service_label": "Physician/practitioner services - 4 anticoagulation monitoring (primary care/specialist/outpatient 112 (Coumadin Clinic) hospital)",
+      "pa_required": true,
+      "pa_status": "conditional",
+      "page": 111,
+      "note": "CONDITIONAL: Depends on setting 111-",
+      "evidence_text": "6 Physician/practitioner services - True conditional CONDITIONAL: Depends on setting 111-"
+    },
+    {
+      "seq": 65,
+      "service_label": "Physician/practitioner services - 5 home visits by required physician/non-physician",
+      "pa_required": true,
+      "pa_status": "conditional",
+      "page": 112,
+      "note": "CONDITIONAL: Referral may be 112",
+      "evidence_text": "6 Physician/practitioner services - True conditional CONDITIONAL: Referral may be 112"
+    },
+    {
+      "seq": 66,
+      "service_label": "Podiatry services",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 112,
+      "note": null,
+      "evidence_text": "6 Podiatry services True required 112-"
+    },
+    {
+      "seq": 67,
+      "service_label": "Additional routine foot care",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 113,
+      "note": null,
+      "evidence_text": "6 Additional routine foot care False not-require 113"
+    },
+    {
+      "seq": 68,
+      "service_label": "Pre-exposure prophylaxis (PrEP) for 8 HIV prevention d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 114,
+      "note": null,
+      "evidence_text": "6 Pre-exposure prophylaxis (PrEP) for False not-require 114"
+    },
+    {
+      "seq": 69,
+      "service_label": "Prostate cancer screening exams",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 114,
+      "note": null,
+      "evidence_text": "6 Prostate cancer screening exams False not-require 114"
+    },
+    {
+      "seq": 70,
+      "service_label": "Prosthetic and orthotic devices and 0 related supplies",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 114,
+      "note": null,
+      "evidence_text": "7 Prosthetic and orthotic devices and True required 114-"
+    },
+    {
+      "seq": 71,
+      "service_label": "Pulmonary rehabilitation services",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 115,
+      "note": null,
+      "evidence_text": "7 Pulmonary rehabilitation services True required 115"
+    },
+    {
+      "seq": 72,
+      "service_label": "Screening and counseling to reduce 2 alcohol misuse d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 115,
+      "note": null,
+      "evidence_text": "7 Screening and counseling to reduce False not-require 115-"
+    },
+    {
+      "seq": 73,
+      "service_label": "Screening for Hepatitis C virus 3 infection d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 116,
+      "note": null,
+      "evidence_text": "7 Screening for Hepatitis C virus False not-require 116"
+    },
+    {
+      "seq": 74,
+      "service_label": "Screening for lung cancer with 4 LDCT d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 117,
+      "note": null,
+      "evidence_text": "7 Screening for lung cancer with False not-require 117"
+    },
+    {
+      "seq": 75,
+      "service_label": "Screening for sexually transmitted 5 infections (STIs) and counseling d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 117,
+      "note": null,
+      "evidence_text": "7 Screening for sexually transmitted False not-require 117-"
+    },
+    {
+      "seq": 76,
+      "service_label": "Services to treat kidney disease 6 (kidney disease education) d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 118,
+      "note": null,
+      "evidence_text": "7 Services to treat kidney disease False not-require 118"
+    },
+    {
+      "seq": 77,
+      "service_label": "Outpatient dialysis treatments",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 119,
+      "note": null,
+      "evidence_text": "7 Outpatient dialysis treatments True required 119"
+    },
+    {
+      "seq": 78,
+      "service_label": "Self-dialysis training",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 119,
+      "note": null,
+      "evidence_text": "7 Self-dialysis training False not-require 119"
+    },
+    {
+      "seq": 79,
+      "service_label": "Skilled nursing facility (SNF) care",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 120,
+      "note": null,
+      "evidence_text": "7 Skilled nursing facility (SNF) care True required 120-"
+    },
+    {
+      "seq": 80,
+      "service_label": "Smoking and tobacco use cessation 0 counseling d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 122,
+      "note": null,
+      "evidence_text": "8 Smoking and tobacco use cessation False not-require 122"
+    },
+    {
+      "seq": 81,
+      "service_label": "Supervised exercise therapy (SET)",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 122,
+      "note": null,
+      "evidence_text": "8 Supervised exercise therapy (SET) True required 122-"
+    },
+    {
+      "seq": 82,
+      "service_label": "Routine transportation",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 123,
+      "note": null,
+      "evidence_text": "8 Routine transportation False not-require 123-"
+    },
+    {
+      "seq": 83,
+      "service_label": "Urgently needed services",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 125,
+      "note": null,
+      "evidence_text": "8 Urgently needed services False not-require 125"
+    },
+    {
+      "seq": 84,
+      "service_label": "Vision services - outpatient 4 physician services (eye disease diagnosis/treatment)",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 126,
+      "note": null,
+      "evidence_text": "8 Vision services - outpatient True required 126"
+    },
+    {
+      "seq": 85,
+      "service_label": "Vision services - glaucoma 5 screening d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 126,
+      "note": null,
+      "evidence_text": "8 Vision services - glaucoma False not-require 126"
+    },
+    {
+      "seq": 86,
+      "service_label": "Vision services - diabetic eye exams",
+      "pa_required": true,
+      "pa_status": "required",
+      "page": 126,
+      "note": null,
+      "evidence_text": "8 Vision services - diabetic eye exams True required 126"
+    },
+    {
+      "seq": 87,
+      "service_label": "Vision services - eyeglasses/contact 7 lenses after cataract surgery d",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 126,
+      "note": null,
+      "evidence_text": "8 Vision services - eyeglasses/contact False not-require 126-"
+    },
+    {
+      "seq": 88,
+      "service_label": "Vision services - routine eye exam",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 127,
+      "note": null,
+      "evidence_text": "8 Vision services - routine eye exam False not-require 127"
+    },
+    {
+      "seq": 89,
+      "service_label": "Vision services - routine eyewear",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 127,
+      "note": null,
+      "evidence_text": "8 Vision services - routine eyewear False not-require 127-"
+    },
+    {
+      "seq": 90,
+      "service_label": "\"Welcome to Medicare\" preventive visit",
+      "pa_required": false,
+      "pa_status": "not_required",
+      "page": 128,
+      "note": null,
+      "evidence_text": "9 \"Welcome to Medicare\" preventive False not-require 128-"
+    }
+  ]
+}

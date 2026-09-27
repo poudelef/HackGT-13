@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.env
+*.pyc
+node_modules/
+.next/
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/storage/
+data/policies/*.pdf
+data/demo/*.pdf
+pa-engine/data/
+.cursor/
+.DS_Store

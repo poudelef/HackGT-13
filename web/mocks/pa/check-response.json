@@ -1,0 +1,12 @@
+{
+  "id": "uuid",
+  "status": "needs_info",
+  "readiness": 0.8,
+  "met_count": 4,
+  "total_count": 5,
+  "can_submit": false,
+  "order_text": "MRI lumbar spine without contrast",
+  "patient": { "id": "uuid", "full_name": "Maria Rodriguez", "synthetic": true },
+  "criteria": [],
+  "events": []
+}

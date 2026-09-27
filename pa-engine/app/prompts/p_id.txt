@@ -1,0 +1,4 @@
+From the first pages of an insurance document, return who issued it and for which plan.
+Return JSON only: {"insurer":{"value":str|null,"evidence":str|null,"page":int|null},"plan_name":{"value":str|null,"evidence":str|null,"page":int|null},"plan_year":{"value":str|null,"evidence":str|null,"page":int|null},"document_title":{"value":str|null,"evidence":str|null,"page":int|null}}
+Evidence must be copied exactly from the pages. Return null when a field is not stated. Never guess from a file name.
+You never decide whether a patient qualifies for anything.
