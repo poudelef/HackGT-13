@@ -10,6 +10,7 @@ const { pool, databaseErrorMessage } = require("./lib/db");
 const { loadDashboard } = require("./lib/patientRecords");
 const { findProvider, loadPatientForDoctor, createAuthorization, DOCUMENT_TYPES } = require("./lib/doctorRecords");
 const { normalizeExtracted } = require("./lib/chartMerge");
+const { loadPayerDashboard } = require("./lib/insuranceRecords");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -348,6 +349,26 @@ app.post("/api/patient/status", async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(503).json({ ok: false, error: databaseErrorMessage(err) });
+  }
+});
+
+app.post("/api/insurance/dashboard", async (req, res) => {
+  const payerId = String(req.body.payerId || "").trim();
+  if (!payerId) {
+    return res.status(400).json({ ok: false, error: "Payer ID is required." });
+  }
+
+  try {
+    const record = await loadPayerDashboard(payerId);
+    if (!record) {
+      return res.status(401).json({
+        ok: false,
+        error: "Not authorized. That payer ID is not on file.",
+      });
+    }
+    return res.json({ ok: true, record });
+  } catch (err) {
+    return sendDoctorError(res, err);
   }
 });
 

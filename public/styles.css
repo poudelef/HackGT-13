@@ -252,6 +252,36 @@ textarea {
   background: var(--patient-dark);
 }
 
+.btn.insurance {
+  background: var(--insurance);
+}
+
+.btn.insurance:hover {
+  background: var(--insurance-dark);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.data-table th {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
 .alert {
   padding: 12px 14px;
   border-radius: 8px;

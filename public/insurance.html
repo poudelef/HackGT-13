@@ -10,7 +10,7 @@
     <header class="topbar">
       <div class="brand">
         <strong>Insurance View</strong>
-        <span>Payer review</span>
+        <span>Membership and authorization business</span>
       </div>
       <nav class="nav">
         <a href="/doctor.html">Doctor</a>
@@ -18,11 +18,23 @@
         <a class="active" href="/insurance.html">Insurance</a>
       </nav>
     </header>
-    <main class="wrap">
-      <section class="card">
-        <h1>Insurance view</h1>
-        <p class="meta">This screen is reserved. Nothing is shown here yet.</p>
+    <main class="wrap wide">
+      <section class="card" id="login-card">
+        <h1>Insurance login</h1>
+        <p class="meta">Enter the payer ID. You will only see that company's membership and authorization totals.</p>
+        <form id="login-form">
+          <label>
+            Payer ID
+            <span class="hint">Numeric payer ID, for example 1.</span>
+            <input name="payerId" type="text" required maxlength="20" autocomplete="off" placeholder="1" />
+          </label>
+          <button class="btn insurance" type="submit">Sign in</button>
+        </form>
+        <p id="message" class="alert hidden" role="status"></p>
       </section>
+
+      <section id="dashboard" class="hidden" aria-live="polite"></section>
     </main>
+    <script src="/insurance.js"></script>
   </body>
 </html>
