@@ -10,52 +10,80 @@
     <header class="topbar">
       <div class="brand">
         <strong>Doctor View</strong>
-        <span>Submit a patient case</span>
+        <span>Review a patient, then apply for pre authorization</span>
       </div>
       <nav class="nav">
         <a class="active" href="/doctor.html">Doctor</a>
         <a href="/patient.html">Patient</a>
+        <a href="/insurance.html">Insurance</a>
       </nav>
     </header>
-    <main class="wrap">
-      <section class="card">
-        <div class="login-chip">
-          <span class="dot" aria-hidden="true"></span>
-          Logged in as Dr. Sarah Chen
-        </div>
-        <h1>New case submission</h1>
-        <p class="meta">All fields and PDF files are sent to the server on submit.</p>
-        <form id="case-form">
-          <input type="hidden" name="doctorName" value="Dr. Sarah Chen" />
+    <main class="wrap wide">
+      <section class="card" id="login-card">
+        <h1>Doctor login</h1>
+        <p class="meta">Enter your provider ID and NPI. Both must match a provider on file.</p>
+        <form id="login-form">
           <label>
-            Patient Name
-            <input name="patientName" type="text" required maxlength="120" />
+            Provider ID
+            <span class="hint">For example, 1 for Dr. Alan Rivera.</span>
+            <input name="providerId" type="text" required maxlength="20" autocomplete="off" />
           </label>
           <label>
-            Patient ID
-            <input name="patientId" type="text" required maxlength="60" />
+            NPI
+            <span class="hint">10-digit National Provider Identifier, for example 1234567893.</span>
+            <input name="npi" type="text" required maxlength="20" autocomplete="off" />
           </label>
-          <label>
-            Patient Age
-            <input name="patientAge" type="number" min="0" max="130" required />
-          </label>
-          <label>
-            Other medical information
-            <textarea name="medicalInfo" placeholder="Diagnosis notes, history, medications..."></textarea>
-          </label>
-          <label>
-            PDF files (up to 10)
-            <span class="hint">Select one or more PDF files. They are stored in the server uploads folder.</span>
-            <input
-              name="pdfs"
-              type="file"
-              accept="application/pdf,.pdf"
-              multiple
-            />
-          </label>
-          <button class="btn" type="submit">Submit case</button>
+          <button class="btn" type="submit">Sign in</button>
         </form>
-        <p id="message" class="alert hidden" role="status"></p>
+        <p id="login-message" class="alert hidden" role="status"></p>
+      </section>
+
+      <section id="workspace" class="hidden">
+        <div class="dash-head card">
+          <div>
+            <div class="login-chip">
+              <span class="dot" aria-hidden="true"></span>
+              <span id="doctor-label">Signed in</span>
+            </div>
+            <p class="meta" id="doctor-clinic"></p>
+          </div>
+          <button class="btn" id="logout" type="button">Log out</button>
+        </div>
+
+        <section class="card">
+          <h1>Find a patient</h1>
+          <p class="meta">Enter the patient's first and last name and patient ID. You cannot create a new patient.</p>
+          <form id="lookup-form">
+            <div class="two-col">
+              <label>
+                Patient name
+                <input name="patientName" type="text" required maxlength="120" placeholder="Jane Sample" />
+              </label>
+              <label>
+                Patient ID
+                <input name="patientId" type="text" required maxlength="60" placeholder="1" />
+              </label>
+            </div>
+            <button class="btn" type="submit">Look up</button>
+          </form>
+          <p id="lookup-message" class="alert hidden" role="status"></p>
+        </section>
+
+        <div id="chart" class="hidden"></div>
+
+        <section class="card hidden" id="apply-card">
+          <h2>Pre authorization</h2>
+          <p class="meta">Upload the request PDFs. They are read and added to this patient's chart.</p>
+          <form id="auth-form">
+            <label>
+              PDF files
+              <span class="hint">Up to 10 files.</span>
+              <input name="pdfs" type="file" accept="application/pdf,.pdf" multiple required />
+            </label>
+            <button class="btn" id="save-button" type="submit">Submit</button>
+          </form>
+          <p id="save-message" class="alert hidden" role="status"></p>
+        </section>
       </section>
     </main>
     <script src="/doctor.js"></script>

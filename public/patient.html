@@ -10,46 +10,35 @@
     <header class="topbar">
       <div class="brand">
         <strong>Patient View</strong>
-        <span>Look up your case status</span>
+        <span>Your prior authorization record</span>
       </div>
       <nav class="nav">
         <a href="/doctor.html">Doctor</a>
         <a class="active" href="/patient.html">Patient</a>
+        <a href="/insurance.html">Insurance</a>
       </nav>
     </header>
-    <main class="wrap">
-      <section class="card">
-        <h1>Patient status login</h1>
-        <p class="meta">Enter the same name and ID the doctor submitted.</p>
+    <main class="wrap wide">
+      <section class="card" id="login-card">
+        <h1>Patient login</h1>
+        <p class="meta">Enter your name and patient ID. You will only see your own record.</p>
         <form id="status-form">
           <label>
-            Patient Name
-            <input name="patientName" type="text" required maxlength="120" />
+            Patient name
+            <span class="hint">First and last name together, for example Jane Sample.</span>
+            <input name="patientName" type="text" required maxlength="120" autocomplete="name" placeholder="Jane Sample" />
           </label>
           <label>
             Patient ID
-            <input name="patientId" type="text" required maxlength="60" />
+            <span class="hint">Numeric patient ID or member ID, for example 1 or SAMP-0000123.</span>
+            <input name="patientId" type="text" required maxlength="60" autocomplete="off" placeholder="1" />
           </label>
-          <button class="btn patient" type="submit">Check status</button>
+          <button class="btn patient" type="submit">Sign in</button>
         </form>
         <p id="message" class="alert hidden" role="status"></p>
-        <div id="result" class="hidden">
-          <div class="status-banner" id="status-banner"></div>
-          <h2>Submitted medical details</h2>
-          <div class="details">
-            <div class="row"><span>Patient name</span><span id="out-name"></span></div>
-            <div class="row"><span>Patient ID</span><span id="out-id"></span></div>
-            <div class="row"><span>Age</span><span id="out-age"></span></div>
-            <div class="row"><span>Doctor</span><span id="out-doctor"></span></div>
-            <div class="row"><span>Submitted</span><span id="out-date"></span></div>
-            <div class="row"><span>Medical information</span><span id="out-info"></span></div>
-            <div class="row">
-              <span>PDF files</span>
-              <ul class="files" id="out-files"></ul>
-            </div>
-          </div>
-        </div>
       </section>
+
+      <section id="dashboard" class="hidden" aria-live="polite"></section>
     </main>
     <script src="/patient.js"></script>
   </body>
